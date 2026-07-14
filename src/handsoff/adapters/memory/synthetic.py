@@ -14,10 +14,18 @@ _SYNTHETIC_ITEMS: tuple[MemoryItem, ...] = (
     MemoryItem(
         source_id="synthetic.preference.arrival-comfort",
         text=(
-            "Synthetic preference: target a calm arrival environment; prepare climate and media, "
-            "but never start playback automatically."
+            "Synthetic preference: for the evening homecoming routine, use welcome lighting, "
+            "set the fan low, and resume Orbit Seven after arrival confidence clears policy."
         ),
         relevance=0.96,
+    ),
+    MemoryItem(
+        source_id="synthetic.preference.kitchen",
+        text=(
+            "Synthetic preference: keep ice production ready and brew arrival coffee only when "
+            "the water reservoir and cup sensors both report available."
+        ),
+        relevance=0.94,
     ),
     MemoryItem(
         source_id="synthetic.preference.energy",

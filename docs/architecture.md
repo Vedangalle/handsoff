@@ -151,7 +151,7 @@ handsoff/
 │   │   ├── persistence/
 │   │   ├── memory/
 │   │   └── clock/
-│   └── presentation/              # Typed UI facade and session state
+│   └── presentation/              # Typed UI facade, ecosystem projection, and session state
 ├── streamlit_app.py               # Streamlit entrypoint
 ├── requirements.txt               # Community Cloud project extras
 ├── .streamlit/config.toml          # Non-secret deployment configuration
@@ -186,9 +186,10 @@ Milestone 4 completes the hackathon application:
 - normalized world state, capability registry, deterministic condition and policy evaluation, approval binding, execution state machine, independent verifier, duplicate suppression, bounded retries, and append-only in-memory/SQLite ledgers;
 - a deterministic fixture planner and scripted simulator that reproduce all six reference scenarios without credentials or network access;
 - a Gemini adapter using minimized JSON context and Pydantic structured output, with no tools or actuator access;
-- deterministic fallback and model-evaluation records for schema validity, hallucinated capabilities, invalid parameters, missing preconditions, policy result, latency, and token usage; and
+- deterministic fallback and model-evaluation records for schema validity, hallucinated capabilities, invalid parameters, missing preconditions, policy result, latency, and token usage;
 - a context-only memory port plus no-op adapter so the core remains complete without Supermemory;
-- fixed-scope read-only Supermemory hybrid search with bounded normalized output and empty-context fallback; and
-- per-browser Streamlit session state over a typed facade, with all six fixtures and every evidence layer visible.
+- fixed-scope read-only Supermemory hybrid search with bounded normalized output and empty-context fallback;
+- per-browser Streamlit session state over a typed facade, with all six fixtures and every evidence layer visible; and
+- an interactive whole-home projection derived only from committed scenario contracts and typed runtime evidence, with no dispatch or authorization surface.
 
 No Home Assistant integration, shadow-state ingestion, live device actuation, public memory writes, or real household data exists. Any such work is post-hackathon and requires a separately approved architecture and security review. The completed presentation and optional read-only memory design are documented in [the deployment guide](streamlit-deployment.md).

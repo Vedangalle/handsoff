@@ -15,7 +15,7 @@
 <p align="center"><em>Internal prototype description: Physical Codex</em></p>
 
 > [!IMPORTANT]
-> Handsoff has completed **Milestone 4: the hackathon application**. The repository contains the deterministic simulation core, six reference scenarios, append-only evidence, contained Gemini planning with offline fallback, bounded read-only Supermemory context, and an inspectable Streamlit operator surface. This repository does not control real devices.
+> Handsoff has completed **Milestone 4: the hackathon application**. The repository contains the deterministic simulation core, six reference scenarios, append-only evidence, contained Gemini planning with offline fallback, bounded read-only Supermemory context, and an interactive whole-home Streamlit surface. This repository does not control real devices.
 
 ## The idea
 
@@ -30,6 +30,8 @@ Handsoff begins with an outcome:
 The system is designed to compile that objective into an inspectable typed plan, evaluate every proposed action with deterministic policy, execute only allowlisted capabilities, and verify the resulting world state from fresh telemetry. A successful API response is not treated as proof that a physical effect occurred.
 
 The model can propose a plan. It can never grant itself authority to act.
+
+The application presents that control plane as one home rather than a list of disconnected apps. A single simulated arrival goal coordinates the driveway signal, garage, EV charger, climate, welcome lighting, ceiling fan, television, ice maker, and guarded coffee preparation. Every active device is backed by the same typed policy, transition, observation, and verification evidence shown below the house.
 
 ## Why this architecture exists
 
@@ -129,7 +131,9 @@ The first target scenario is:
 
 > **Prepare my environment for arrival in five minutes.**
 
-The deterministic simulator coordinates destination confidence, garage state, charger readiness, room conditioning, media readiness, and energy constraints.
+The nominal simulator coordinates eight bounded effects from one goal: garage entry, EV-charger readiness, climate setpoint, guarded coffee preparation, fan speed, ice production, welcome lighting, and the fictional program `Orbit Seven` on the living-room television. Destination confidence and device preconditions remain policy inputs rather than visual assumptions.
+
+The Streamlit application renders these systems inside an interactive cutaway home. Green activity signals mean ready or independently verified; red signals mean blocked or failed; amber means guarded. Selecting a device exposes its evidence-derived state. The fireplace is deliberately present but permanently marked `R3 locked`: the prototype never exposes fire or gas ignition as a capability.
 
 The architecture is not demonstrated by a single happy path. The approved scenario suite must cover:
 
@@ -161,7 +165,7 @@ All six named fixtures are committed, schema-validated, executed through the det
 | Gemini planner adapter | Implemented and optional | Minimized prompt, Pydantic structured output, trusted binding checks, no tools, deterministic fallback |
 | Planner evaluation | Implemented | Configuration, schema validity, hallucinations, parameters, preconditions, policy result, latency, and token usage |
 | Memory boundary | Implemented and optional | Context-only port, no-op and synthetic adapters, read-only Supermemory search, fixed scope, five-result limit, normalization, and fail-closed fallback |
-| Operator interface | Implemented | Original responsive Streamlit mission control with narrative outcome, proposal, policy, transitions, verification, ledger, and memory evidence views |
+| Operator interface | Implemented | Responsive whole-home spatial runtime plus narrative outcome, proposal, policy, transitions, verification, ledger, and memory evidence views |
 | Supermemory demonstration | Implemented and optional | Hybrid retrieval supplies bounded untrusted planner context; no writes or authority path exist |
 | Home Assistant integration | Post-hackathon | Not part of the M4 completion line |
 | Real device actuation | Prohibited | No real actuation in the prototype |
@@ -232,7 +236,7 @@ handsoff/
 │   │   ├── policies.py
 │   │   └── scenarios.py
 │   ├── ports/                      # Planner, memory, adapter, ledger, and clock
-│   ├── presentation/               # Typed facade, configuration, and session state
+│   ├── presentation/               # Typed facade, ecosystem projection, configuration, and session state
 │   ├── __init__.py
 │   └── py.typed
 ├── scenarios/
@@ -306,7 +310,7 @@ uv sync --frozen --all-extras
 uv run --frozen --all-extras streamlit run streamlit_app.py
 ```
 
-Open the local URL printed by Streamlit. The default **Offline memory lab** is the complete, presentation-ready path: it requires no credential, makes no network call, and supplies clearly labeled synthetic preference records through the same bounded memory port. Select any committed mission and inspect the goal-to-evidence pipeline, typed proposal, policy reasons, state transitions, outcome verification, ordered ledger, and memory trust boundary.
+Open the local URL printed by Streamlit. The default **Offline memory lab** is the complete, presentation-ready path: it requires no credential, makes no network call, and supplies clearly labeled synthetic preference records through the same bounded memory port. Select **Whole-home evening arrival**, run the mission, and inspect the verified house: the garage opens, charger prepares, climate and welcome lighting settle, fan rotates, television resumes `Orbit Seven`, ice production starts, and guarded coffee preparation completes. Then select **Obstructed garage** to see the same spatial surface fail closed. Every state remains traceable through the proposal, policy reasons, transitions, verification results, ordered ledger, and memory boundary below the house.
 
 The synthetic mode is deliberately honest about what it proves. It demonstrates context retrieval, normalization, planner containment, and the authority boundary; it does not claim that a live Supermemory request occurred. Deterministic baseline also remains fully offline. Live Gemini and Supermemory modes are optional comparisons for deployments with newly issued server-side credentials.
 
@@ -365,7 +369,7 @@ The deterministic core must remain installable and testable without Gemini, Supe
 
 ## Streamlit and Supermemory path
 
-Milestone 4 is a single-process Streamlit application over typed application services. It supports four visible modes: deterministic baseline, an offline synthetic-memory lab, optional Gemini planning, and optional Gemini plus read-only Supermemory context. The core and the complete visual demonstration remain functional when both external providers are disabled.
+Milestone 4 is a single-process Streamlit application over typed application services. Its interactive cutaway-home projection is derived from committed scenario and runtime evidence; the embedded component has no authority path of its own. It supports four visible modes: deterministic baseline, an offline synthetic-memory lab, optional Gemini planning, and optional Gemini plus read-only Supermemory context. The core and the complete visual demonstration remain functional when both external providers are disabled.
 
 The public demo uses one fixed server-configured, demo-only Supermemory scope; retrieves at most five hybrid-search results; normalizes and truncates each result; labels it untrusted; and passes it only to planner context. Browser users cannot select container tags or write shared memory. Provider keys remain in Streamlit Community Cloud secrets, never in Git or session output.
 
@@ -383,7 +387,7 @@ The prototype core does not use LangChain, a general agent framework, Celery, Re
 | **M1 — Contracts and deterministic tests** | Domain vocabulary, strict schemas, test clock, scenario schema, six fixtures, and fail-first invariant tests | **Complete** |
 | **M2 — Deterministic runtime** | World model, capability registry, policy kernel, state machine, verifier, ledger, simulator, and executable scenarios | **Complete** |
 | **M3 — Contained planner** | Minimized Gemini structured output, trusted binding checks, deterministic fallback, optional memory port, and model evaluation | **Complete** |
-| **M4 — Hackathon application** | Streamlit world/plan/policy/approval/timeline/replay UI plus optional read-only Supermemory context comparison | **Complete** |
+| **M4 — Hackathon application** | Interactive whole-home spatial runtime, complete evidence UI, and optional read-only Supermemory context comparison | **Complete** |
 
 Milestone 4 is the completed hackathon line. There are no additional committed milestones. Home Assistant shadow integration, live telemetry, and any real-device work are optional post-hackathon extensions requiring separate architecture and security approval.
 

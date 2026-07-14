@@ -37,7 +37,7 @@ The interface makes the active mode and every external-provider boundary visible
 
 ## Credential-free demonstration
 
-The default public experience is the offline memory lab. It returns three bounded, deterministic preference records through `SyntheticMemoryProvider`, then executes the same planner, policy, simulator, verifier, and ledger used by every other mode. It is intended for local judging, screenshots, and deployments where provider credentials are unavailable.
+The default public experience is the offline memory lab. It returns four bounded, deterministic preference records through `SyntheticMemoryProvider`, then executes the same planner, policy, simulator, verifier, and ledger used by every other mode. It is intended for local judging, screenshots, and deployments where provider credentials are unavailable.
 
 Synthetic context can influence only `PlannerRequest.preference_context`. The deterministic planner intentionally ignores preference context, so the offline lab demonstrates retrieval and containment rather than claiming model personalization. A live proposal comparison requires an explicitly configured Gemini planner. This distinction is rendered in the interface.
 
@@ -98,6 +98,9 @@ Deployment selects `main`, `streamlit_app.py`, and Python 3.12. Provider values 
 ## Milestone 4 acceptance evidence
 
 - All six scenarios are selectable and replayable.
+- The cutaway-home component projects device states from typed scenario and runtime evidence and has no authorization or dispatch path.
+- The nominal goal verifies eight coordinated effects across the garage, charger, climate, coffee, fan, ice, lighting, and television.
+- Green, red, and amber device signals distinguish ready or verified, blocked or failed, and prohibited states; the fireplace remains visibly `R3 locked`.
 - World state, proposal, policy reasons, approval boundary, action transitions, verification evidence, and ledger sequence are visible.
 - Deterministic and offline-memory modes run with no secrets and no network.
 - Gemini invalid output or unavailability visibly falls back without side effects.

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from html import escape
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
@@ -9,7 +10,15 @@ from typing import TYPE_CHECKING, cast
 import streamlit as st
 
 from handsoff.domain.events import EventKind
-from handsoff.presentation import DemoFacade, DemoMode, DemoRun, DemoSession, DemoSettings
+from handsoff.presentation import (
+    DemoFacade,
+    DemoMode,
+    DemoRun,
+    DemoSession,
+    DemoSettings,
+    EcosystemView,
+    build_ecosystem_view,
+)
 
 if TYPE_CHECKING:
     from handsoff.domain.scenarios import ScenarioDefinition
@@ -421,10 +430,205 @@ def _render_section_label(index: str, label: str) -> None:
     )
 
 
+def _render_ecosystem(view: EcosystemView) -> None:
+    """Render the evidence-driven whole-home cutaway and local inspector."""
+    devices = [
+        {
+            "id": device.device_id,
+            "label": device.label,
+            "room": device.room,
+            "status": device.status.value,
+            "value": device.value,
+            "detail": device.detail,
+        }
+        for device in view.devices
+    ]
+    payload = json.dumps(devices, separators=(",", ":")).replace("</", "<\\/")
+    status_by_id = {device.device_id: device.status.value for device in view.devices}
+    scene_classes = " ".join(f"{device_id}-{status}" for device_id, status in status_by_id.items())
+    mission_label = _humanize(view.mission_state)
+    _render_section_label("01", "One home / one coordinated system")
+    # Ruff's SQL heuristic sees SELECT in the JavaScript below; this is local HTML, not SQL.
+    component = f"""
+    <!doctype html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <style>
+        * {{ box-sizing: border-box; }}
+        :root {{
+          --ink:#0c1830; --muted:#63738a; --blue:#2368e8; --blue2:#4d8fff;
+          --green:#20b26b; --red:#d84d5b; --amber:#cf8614; --line:rgba(27,70,135,.14);
+          font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }}
+        body {{ margin:0; color:var(--ink); background:transparent; }}
+        .ecosystem {{
+          position:relative; height:700px; overflow:hidden; border:1px solid var(--line);
+          border-radius:22px; background:linear-gradient(160deg,#fafdff 0%,#edf4ff 62%,#e7eef8 100%);
+          box-shadow:0 24px 70px rgba(35,75,137,.1);
+        }}
+        .topbar {{
+          position:absolute; z-index:10; top:20px; left:24px; right:24px; display:flex;
+          align-items:flex-start; justify-content:space-between; gap:20px; pointer-events:none;
+        }}
+        .eyebrow {{ color:var(--blue); font:800 10px/1 ui-monospace,monospace; letter-spacing:.15em; text-transform:uppercase; }}
+        h1 {{ margin:8px 0 0; font-size:clamp(25px,3.2vw,43px); line-height:1; letter-spacing:-.05em; }}
+        .mission {{
+          display:flex; align-items:center; gap:8px; padding:9px 12px; border:1px solid var(--line);
+          border-radius:999px; background:rgba(255,255,255,.8); color:#41516a;
+          font:800 10px/1 ui-monospace,monospace; letter-spacing:.08em; text-transform:uppercase;
+          backdrop-filter:blur(12px);
+        }}
+        .mission i {{ width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 12px rgba(32,178,107,.58); }}
+        .scene {{ position:absolute; inset:0; }}
+        .house-svg {{ width:100%; height:100%; display:block; }}
+        .flow {{ stroke-dasharray:8 12; animation:flow 1.8s linear infinite; }}
+        .scene.staged .flow {{ animation:none; opacity:.24; }}
+        .tv-on, .coffee-steam, .light-glow, .fan-blades, .garage-open {{ opacity:0; }}
+        .media-verified .tv-on {{ opacity:1; animation:screenOn .8s ease-out both; }}
+        .coffee-verified .coffee-steam {{ opacity:1; animation:steam 1.8s ease-in-out infinite; }}
+        .lighting-verified .light-glow {{ opacity:1; animation:glow 2s ease-in-out infinite; }}
+        .fan-verified .fan-blades {{ opacity:1; transform-origin:885px 235px; animation:spin 2.4s linear infinite; }}
+        .garage-verified .garage-closed {{ opacity:0; }}
+        .garage-verified .garage-open {{ opacity:1; }}
+        .device {{
+          position:absolute; z-index:8; display:flex; align-items:center; gap:7px; padding:7px 9px;
+          color:#3f506a; background:rgba(255,255,255,.9); border:1px solid rgba(27,70,135,.16);
+          border-radius:999px; box-shadow:0 8px 24px rgba(33,71,126,.1); cursor:pointer;
+          font:800 9px/1 ui-monospace,monospace; letter-spacing:.05em; text-transform:uppercase;
+          transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; white-space:nowrap;
+        }}
+        .device:hover,.device.active {{ transform:translateY(-2px) scale(1.03); border-color:var(--blue2); box-shadow:0 10px 30px rgba(35,104,232,.2); }}
+        .device .dot {{ width:8px; height:8px; border-radius:50%; background:#99a5b7; }}
+        .device[data-status="ready"] .dot,.device[data-status="verified"] .dot {{ background:var(--green); box-shadow:0 0 10px rgba(32,178,107,.7); }}
+        .device[data-status="verified"] {{ animation:arrive .65s ease-out both; animation-delay:var(--delay); }}
+        .device[data-status="blocked"] .dot,.device[data-status="failed"] .dot {{ background:var(--red); box-shadow:0 0 10px rgba(216,77,91,.5); }}
+        .device[data-status="prohibited"] .dot {{ background:var(--amber); }}
+        .vehicle {{ left:4%; top:73%; }} .grid {{ left:8%; top:28%; }} .garage {{ left:25%; top:65%; }}
+        .charger {{ left:39%; top:76%; }} .coffee {{ left:48%; top:59%; }} .ice {{ left:57%; top:43%; }}
+        .climate {{ left:66%; top:29%; }} .lighting {{ left:73%; top:16%; }} .fan {{ left:73%; top:43%; }}
+        .media {{ left:79%; top:61%; }} .fireplace {{ left:86%; top:76%; }}
+        .inspector {{
+          position:absolute; z-index:9; left:24px; bottom:22px; width:min(410px,42%); min-height:104px;
+          padding:14px 16px; border:1px solid rgba(27,70,135,.16); border-radius:15px;
+          background:rgba(255,255,255,.9); box-shadow:0 18px 50px rgba(26,62,116,.13); backdrop-filter:blur(14px);
+        }}
+        .inspector-head {{ display:flex; align-items:center; justify-content:space-between; gap:12px; }}
+        .inspector h2 {{ margin:0; font-size:18px; letter-spacing:-.03em; }}
+        .state {{ color:var(--green); font:800 9px/1 ui-monospace,monospace; letter-spacing:.1em; text-transform:uppercase; }}
+        .inspector p {{ margin:8px 0 0; color:var(--muted); font-size:12px; line-height:1.45; }}
+        .value {{ color:var(--blue); font-weight:750; }}
+        .legend {{
+          position:absolute; z-index:7; right:24px; bottom:24px; display:flex; gap:12px; color:#718098;
+          font:700 8px/1 ui-monospace,monospace; letter-spacing:.08em; text-transform:uppercase;
+        }}
+        .legend span {{ display:flex; align-items:center; gap:5px; }}
+        .legend i {{ width:7px;height:7px;border-radius:50%;background:#99a5b7; }}
+        .legend .live {{background:var(--green)}} .legend .stop {{background:var(--red)}} .legend .guard {{background:var(--amber)}}
+        @keyframes flow {{ to {{ stroke-dashoffset:-40; }} }}
+        @keyframes arrive {{ from {{ opacity:0; transform:translateY(8px) scale(.96); }} }}
+        @keyframes screenOn {{ from {{ opacity:0; }} 35% {{ opacity:.35; }} 50% {{ opacity:.08; }} to {{ opacity:1; }} }}
+        @keyframes steam {{ 0%,100% {{ transform:translateY(2px);opacity:.3; }} 50% {{ transform:translateY(-6px);opacity:1; }} }}
+        @keyframes glow {{ 0%,100% {{ opacity:.5; }} 50% {{ opacity:1; }} }}
+        @keyframes spin {{ to {{ transform:rotate(360deg); }} }}
+        @media (max-width:760px) {{
+          .ecosystem {{ height:610px; }} .topbar {{ top:16px;left:16px;right:16px; }}
+          .house-svg {{ transform:scale(1.18); transform-origin:52% 62%; }}
+          .device {{ font-size:0; padding:7px; }} .inspector {{ left:14px;bottom:14px;width:calc(100% - 28px); }}
+          .legend {{ display:none; }}
+        }}
+        @media (prefers-reduced-motion:reduce) {{ * {{ animation:none!important;transition:none!important; }} }}
+      </style>
+    </head>
+    <body>
+      <main class="ecosystem" aria-label="Interactive whole-home ecosystem">
+        <div class="topbar"><div><div class="eyebrow">Handsoff / spatial runtime</div>
+          <h1>The whole home moves as one.</h1></div>
+          <div class="mission"><i></i>{escape(mission_label)}</div></div>
+        <div class="scene {escape(view.mission_state)} {escape(scene_classes)}">
+          <svg class="house-svg" viewBox="0 0 1200 700" role="img" aria-label="Cutaway smart home with driveway, garage, kitchen, living room, and utility systems">
+            <defs>
+              <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e8f1ff"/><stop offset="1" stop-color="#f9fbff"/></linearGradient>
+              <linearGradient id="home" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#eef4fd"/></linearGradient>
+              <filter id="shadow"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#234c86" flood-opacity=".16"/></filter>
+              <filter id="soft"><feGaussianBlur stdDeviation="16"/></filter>
+            </defs>
+            <rect width="1200" height="700" fill="url(#sky)"/>
+            <circle cx="1010" cy="118" r="68" fill="#fff" opacity=".72"/>
+            <path d="M0 548 Q180 510 360 548 T760 548 T1200 532 V700 H0Z" fill="#dce8f4"/>
+            <path d="M0 590 L355 540 L550 568 L0 655Z" fill="#c8d5e5"/>
+            <path class="flow" d="M125 522 C220 470 280 480 340 465 S520 375 610 420 S780 370 920 400" fill="none" stroke="#3d7ff0" stroke-width="3" opacity=".48"/>
+            <g filter="url(#shadow)">
+              <path d="M305 235 L635 92 L1008 236 Z" fill="#173765"/>
+              <path d="M342 225 L634 110 L965 225 Z" fill="#2b66bd" opacity=".88"/>
+              <rect x="318" y="226" width="675" height="360" rx="8" fill="url(#home)" stroke="#adc3df"/>
+              <rect x="334" y="382" width="260" height="188" rx="4" fill="#e9f0f8" stroke="#bdcde0"/>
+              <rect x="610" y="382" width="185" height="188" rx="4" fill="#fff8ef" stroke="#ddcdb9"/>
+              <rect x="811" y="382" width="166" height="188" rx="4" fill="#f2f6ff" stroke="#c4d1e5"/>
+              <rect x="463" y="244" width="226" height="122" rx="4" fill="#f7f0ff" stroke="#d5c6e4"/>
+              <rect x="705" y="244" width="272" height="122" rx="4" fill="#eef7ff" stroke="#c4d9e8"/>
+            </g>
+            <text x="345" y="403" fill="#74849a" font-size="11" font-family="monospace">GARAGE</text>
+            <text x="621" y="403" fill="#8b7967" font-size="11" font-family="monospace">KITCHEN</text>
+            <text x="822" y="403" fill="#74849a" font-size="11" font-family="monospace">LIVING</text>
+            <text x="474" y="264" fill="#8b7c98" font-size="11" font-family="monospace">REST</text>
+            <text x="716" y="264" fill="#70869a" font-size="11" font-family="monospace">CLIMATE + LIGHT</text>
+            <g class="garage-closed"><rect x="352" y="430" width="205" height="140" rx="4" fill="#cbd7e5"/><path d="M352 458H557M352 486H557M352 514H557M352 542H557" stroke="#a7b7ca" stroke-width="3"/></g>
+            <g class="garage-open"><rect x="352" y="430" width="205" height="140" rx="4" fill="#23344c"/><rect x="365" y="444" width="180" height="14" rx="3" fill="#8ea6c1"/></g>
+            <g transform="translate(82 491)"><path d="M12 42 Q21 15 57 13 H137 Q166 15 187 42 L202 51 V73 H0V54Z" fill="#2368e8"/><path d="M57 18H130Q150 20 164 40H40Q46 23 57 18Z" fill="#c9e4ff"/><circle cx="43" cy="72" r="17" fill="#17253b"/><circle cx="163" cy="72" r="17" fill="#17253b"/></g>
+            <g transform="translate(520 466)"><rect width="22" height="82" rx="5" fill="#fff" stroke="#7ea0ca"/><circle cx="11" cy="18" r="5" fill="#20b26b"/><path d="M11 29V54Q12 67 27 66" fill="none" stroke="#2368e8" stroke-width="4"/></g>
+            <g transform="translate(624 470)"><path d="M0 58H157V97H0Z" fill="#d9b993"/><path d="M15 58V21H83V58" fill="#f0d7b8"/><rect x="105" y="26" width="35" height="32" rx="5" fill="#263a55"/><rect x="113" y="34" width="19" height="8" rx="2" fill="#4d8fff"/><path class="coffee-steam" d="M116 20Q108 10 116 0M128 20Q120 10 128 0" fill="none" stroke="#8497ad" stroke-width="3" stroke-linecap="round"/></g>
+            <g transform="translate(740 430)"><rect width="42" height="113" rx="5" fill="#dbe7f4" stroke="#9cb2ca"/><path d="M0 50H42" stroke="#9cb2ca"/><circle cx="33" cy="61" r="3" fill="#2368e8"/></g>
+            <g transform="translate(836 442)"><rect width="115" height="70" rx="6" fill="#182942"/><rect class="tv-on" x="5" y="5" width="105" height="60" rx="4" fill="#2368e8"/><text class="tv-on" x="57" y="35" text-anchor="middle" fill="#fff" font-size="9" font-family="monospace">ORBIT SEVEN</text><path d="M57 70V82M37 82H77" stroke="#52657d" stroke-width="4"/></g>
+            <g transform="translate(885 235)"><circle r="7" fill="#52657d"/><g class="fan-blades" fill="#6f88a7"><ellipse cx="0" cy="-28" rx="8" ry="25"/><ellipse cx="28" cy="0" rx="25" ry="8"/><ellipse cx="0" cy="28" rx="8" ry="25"/><ellipse cx="-28" cy="0" rx="25" ry="8"/></g></g>
+            <g class="light-glow"><circle cx="760" cy="294" r="45" fill="#ffd56d" opacity=".23" filter="url(#soft)"/><circle cx="920" cy="294" r="45" fill="#ffd56d" opacity=".23" filter="url(#soft)"/></g>
+            <g fill="#ffd56d"><path d="M744 276Q760 255 776 276Q776 291 767 299H753Q744 291 744 276Z"/><path d="M904 276Q920 255 936 276Q936 291 927 299H913Q904 291 904 276Z"/></g>
+            <g transform="translate(903 522)"><rect width="52" height="48" rx="4" fill="#d5c3b5"/><path d="M7 42Q14 22 26 40Q35 14 45 42" fill="#bac1ca"/><path d="M18 31L26 18L34 31" fill="none" stroke="#cf8614" stroke-width="3"/><rect x="17" y="8" width="18" height="12" rx="4" fill="#fff"/><path d="M22 12V9Q22 4 26 4Q30 4 30 9V12" fill="none" stroke="#76869a" stroke-width="2"/></g>
+            <g transform="translate(748 302)"><rect width="42" height="30" rx="7" fill="#fff" stroke="#7b9bc1"/><text x="21" y="20" text-anchor="middle" fill="#2368e8" font-size="10" font-family="monospace">22°</text></g>
+            <path d="M254 205V430" stroke="#8aa6c7" stroke-width="3"/><path d="M242 208H266L254 183Z" fill="#2368e8"/><circle cx="254" cy="433" r="9" fill="#20b26b"/>
+          </svg>
+          {_device_buttons(view)}
+          <section class="inspector" aria-live="polite"><div class="inspector-head"><h2 id="device-title">Whole-home system</h2><span class="state" id="device-state">Explore</span></div><p><span class="value" id="device-value">Select any room or device.</span><br><span id="device-detail">Every view is derived from scenario evidence and deterministic policy.</span></p></section>
+          <div class="legend"><span><i class="live"></i>ready / verified</span><span><i class="stop"></i>blocked / failed</span><span><i class="guard"></i>guarded</span></div>
+        </div>
+      </main>
+      <script>
+        const devices={payload};
+        function selectDevice(id) {{
+          const device=devices.find(item=>item.id===id);
+          if(!device)return;
+          document.querySelectorAll('.device').forEach(node=>node.classList.toggle('active',node.dataset.device===id));
+          document.getElementById('device-title').textContent=device.label+' / '+device.room;
+          document.getElementById('device-state').textContent=device.status;
+          document.getElementById('device-value').textContent=device.value;
+          document.getElementById('device-detail').textContent=device.detail;
+        }}
+        document.querySelectorAll('.device').forEach(node=>node.addEventListener('click',()=>selectDevice(node.dataset.device)));
+        selectDevice(devices.find(item=>item.status==='verified')?.id || devices[0].id);
+      </script>
+    </body>
+    </html>
+    """  # noqa: S608
+    st.iframe(component, width="stretch", height=720)
+
+
+def _device_buttons(view: EcosystemView) -> str:
+    """Build fixed local interaction targets without accepting browser input."""
+    delays = {device.device_id: index * 0.12 for index, device in enumerate(view.devices)}
+    return "".join(
+        f'<button class="device {escape(device.device_id)}" data-device="{escape(device.device_id)}" '
+        f'data-status="{escape(device.status.value)}" style="--delay:{delays[device.device_id]:.2f}s">'
+        f'<i class="dot"></i>{escape(device.label)}</button>'
+        for device in view.devices
+    )
+
+
 def _render_landing(scenario: ScenarioDefinition, mode: DemoMode) -> None:
     """Explain the runnable system before evidence exists."""
+    _render_ecosystem(build_ecosystem_view(scenario))
     st.info("Mission is staged. Run it from Mission control to generate a complete evidence trace.")
-    _render_section_label("01", "Selected mission")
+    _render_section_label("02", "Selected mission")
     st.markdown(
         f"""
         <div class="ho-hero-panel">
@@ -438,7 +642,7 @@ def _render_landing(scenario: ScenarioDefinition, mode: DemoMode) -> None:
         """,
         unsafe_allow_html=True,
     )
-    _render_section_label("02", "One goal, six hard boundaries")
+    _render_section_label("03", "One goal, six hard boundaries")
     stages = (
         ("01", "Observe", "Fresh, sourced world state"),
         ("02", "Remember", "Preference context only"),
@@ -452,7 +656,7 @@ def _render_landing(scenario: ScenarioDefinition, mode: DemoMode) -> None:
         for number, title, body in stages
     )
     st.markdown(f'<div class="ho-grid ho-grid--3">{cards}</div>', unsafe_allow_html=True)
-    _render_section_label("03", "The control-plane thesis")
+    _render_section_label("04", "The control-plane thesis")
     st.markdown(
         """
         <div class="ho-grid ho-grid--3">
@@ -474,7 +678,7 @@ def _render_summary(run: DemoRun) -> None:
     decision = runtime.policy.decision.value
     result_class = "ho-result--allow" if decision == "allow" else "ho-result--deny"
     match_label = "TRACE MATCHED" if run.assessment.matched else "TRACE MISMATCH"
-    _render_section_label("01", "Mission outcome")
+    _render_section_label("02", "Mission outcome")
     st.markdown(
         f"""
         <div class="ho-hero-panel">
@@ -721,8 +925,9 @@ def main() -> None:
         _render_landing(session.facade.scenario(scenario_id), mode)
         return
 
+    _render_ecosystem(build_ecosystem_view(run.scenario, run.assessment.runtime))
     _render_summary(run)
-    _render_section_label("02", "Inspectable runtime")
+    _render_section_label("03", "Inspectable runtime")
     tabs = st.tabs(
         ["Overview", "Proposal", "Policy", "Execution", "Verification", "Evidence", "Memory"],
     )

@@ -20,7 +20,9 @@ The first objective is:
 
 > Prepare my environment for arrival in five minutes.
 
-The deterministic simulator coordinates garage state, charger readiness, room conditioning, media readiness, destination confidence, and energy constraints. It demonstrates nominal arrival, false proximity, an obstructed garage, an energy constraint, stale telemetry, and partial execution failure.
+The deterministic simulator coordinates eight nominal whole-home effects: garage entry, charger readiness, room conditioning, guarded coffee preparation, fan speed, ice production, welcome lighting, and television playback. Destination confidence and energy constraints remain authoritative inputs. The suite also demonstrates false proximity, an obstructed garage, an energy constraint, stale telemetry, and partial execution failure.
+
+The presentation wedge is one interactive ecosystem rather than a device dashboard. A cutaway home lets the operator inspect the driveway, car, garage, kitchen, living room, and utility signals as one coordinated result. Visual motion and activity states are projections of typed runtime evidence; they never create authority or substitute for verification. Fire and gas ignition remain visible only as an `R3 locked` boundary.
 
 ## Core promise
 
@@ -61,4 +63,4 @@ These behaviors are measured against committed synthetic fixtures. They are not 
 
 ## Current status
 
-Milestone 4 completes the hackathon application: deterministic runtime, six reproducible scenarios, append-only evidence, contained Gemini structured planning, deterministic fallback, model evaluation, a Streamlit operator interface, and optional read-only Supermemory context. There are no further committed milestones. The prototype still has no real-device integration or actuation.
+Milestone 4 completes the hackathon application: deterministic runtime, six reproducible scenarios, append-only evidence, contained Gemini structured planning, deterministic fallback, model evaluation, an interactive whole-home Streamlit interface, and optional read-only Supermemory context. There are no further committed milestones. The prototype still has no real-device integration or actuation.

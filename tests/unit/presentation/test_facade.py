@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[3]
 SCENARIOS = ROOT / "scenarios"
 SCENARIO_COUNT = 6
 MEMORY_LIMIT = 5
-SYNTHETIC_MEMORY_COUNT = 3
+SYNTHETIC_MEMORY_COUNT = 4
 
 
 class StaticSupermemory:

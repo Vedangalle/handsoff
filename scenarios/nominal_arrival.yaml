@@ -1,7 +1,7 @@
 schema_version: "1.0.0"
 scenario_id: scenario.nominal-arrival
-title: Nominal simulated arrival
-description: All four simulated preparation capabilities produce fresh declared effects.
+title: Whole-home evening arrival
+description: Eight coordinated rooms and devices produce fresh declared effects from one goal.
 simulation_only: true
 clock_start_at: "2026-07-13T12:00:00Z"
 goal:
@@ -31,9 +31,33 @@ goal:
       unit: degrees_celsius
       tolerance: 0.5
     - condition_id: condition.media-ready
-      description: Living-room media reports ready
+      description: Living-room media begins the usual evening program
       entity_id: media.living
-      property_id: readiness
+      property_id: playback_state
+      operator: equals
+      target_value: playing
+    - condition_id: condition.lighting-welcome
+      description: Living-room lighting reports the welcome scene
+      entity_id: lighting.living
+      property_id: scene
+      operator: equals
+      target_value: welcome
+    - condition_id: condition.fan-comfort
+      description: Living-room fan reports the preferred low setting
+      entity_id: fan.living
+      property_id: speed
+      operator: equals
+      target_value: low
+    - condition_id: condition.ice-making
+      description: Kitchen ice maker reports active production
+      entity_id: ice-maker.kitchen
+      property_id: production_state
+      operator: equals
+      target_value: making
+    - condition_id: condition.coffee-ready
+      description: Guarded kitchen coffee routine reports ready
+      entity_id: coffee.kitchen
+      property_id: brew_state
       operator: equals
       target_value: ready
 capabilities:
@@ -127,28 +151,168 @@ capabilities:
     max_attempts: 1
     idempotency: key_required
     supported_modes: [simulation]
-  - capability_id: media.prepare
+  - capability_id: coffee.brew-arrival
     version: "1.0.0"
     adapter_id: adapter.simulator
-    target_entity_id: media.living
-    description: Prepare simulated media without starting playback
+    target_entity_id: coffee.kitchen
+    description: Brew simulated arrival coffee after guarded readiness checks
+    operation: write
+    risk_class: R2
+    authorization: none
+    preconditions:
+      - condition_id: precondition.coffee-water
+        description: Coffee maker water reservoir is available
+        entity_id: coffee.kitchen
+        property_id: water_available
+        operator: is_true
+      - condition_id: precondition.coffee-cup
+        description: Coffee cup sensor reports present
+        entity_id: coffee.kitchen
+        property_id: cup_present
+        operator: is_true
+      - condition_id: precondition.coffee-arrival-confidence
+        description: Destination confidence supports the arrival routine
+        entity_id: vehicle.primary
+        property_id: destination_confidence
+        operator: greater_than_or_equal
+        target_value: 0.8
+        unit: ratio
+    expected_effects:
+      - condition_id: effect.coffee-ready
+        description: Simulated coffee routine becomes ready
+        entity_id: coffee.kitchen
+        property_id: brew_state
+        operator: equals
+        target_value: ready
+    completion_evidence:
+      - condition_id: evidence.coffee-ready
+        description: Fresh coffee-maker telemetry reports ready
+        entity_id: coffee.kitchen
+        property_id: brew_state
+        operator: equals
+        target_value: ready
+    timeout_seconds: 5.0
+    max_attempts: 1
+    idempotency: key_required
+    supported_modes: [simulation]
+  - capability_id: fan.set-comfort
+    version: "1.0.0"
+    adapter_id: adapter.simulator
+    target_entity_id: fan.living
+    description: Set the simulated living-room fan to the preferred arrival speed
     operation: write
     risk_class: R1
     authorization: none
     expected_effects:
-      - condition_id: effect.media-ready
-        description: Media becomes ready
-        entity_id: media.living
-        property_id: readiness
+      - condition_id: effect.fan-comfort
+        description: Living-room fan becomes low
+        entity_id: fan.living
+        property_id: speed
         operator: equals
-        target_value: ready
+        target_value: low
     completion_evidence:
-      - condition_id: evidence.media-ready
-        description: Fresh media telemetry reports ready
-        entity_id: media.living
-        property_id: readiness
+      - condition_id: evidence.fan-comfort
+        description: Fresh fan telemetry reports low
+        entity_id: fan.living
+        property_id: speed
         operator: equals
-        target_value: ready
+        target_value: low
+    timeout_seconds: 5.0
+    max_attempts: 1
+    idempotency: key_required
+    supported_modes: [simulation]
+  - capability_id: ice.prepare
+    version: "1.0.0"
+    adapter_id: adapter.simulator
+    target_entity_id: ice-maker.kitchen
+    description: Start simulated kitchen ice production
+    operation: write
+    risk_class: R1
+    authorization: none
+    expected_effects:
+      - condition_id: effect.ice-making
+        description: Ice production becomes active
+        entity_id: ice-maker.kitchen
+        property_id: production_state
+        operator: equals
+        target_value: making
+    completion_evidence:
+      - condition_id: evidence.ice-making
+        description: Fresh ice-maker telemetry reports active production
+        entity_id: ice-maker.kitchen
+        property_id: production_state
+        operator: equals
+        target_value: making
+    timeout_seconds: 5.0
+    max_attempts: 1
+    idempotency: key_required
+    supported_modes: [simulation]
+  - capability_id: lighting.set-welcome
+    version: "1.0.0"
+    adapter_id: adapter.simulator
+    target_entity_id: lighting.living
+    description: Set the simulated living-room welcome lighting scene
+    operation: write
+    risk_class: R1
+    authorization: none
+    expected_effects:
+      - condition_id: effect.lighting-welcome
+        description: Lighting scene becomes welcome
+        entity_id: lighting.living
+        property_id: scene
+        operator: equals
+        target_value: welcome
+    completion_evidence:
+      - condition_id: evidence.lighting-welcome
+        description: Fresh lighting telemetry reports the welcome scene
+        entity_id: lighting.living
+        property_id: scene
+        operator: equals
+        target_value: welcome
+    timeout_seconds: 5.0
+    max_attempts: 1
+    idempotency: key_required
+    supported_modes: [simulation]
+  - capability_id: media.resume-usual
+    version: "1.0.0"
+    adapter_id: adapter.simulator
+    target_entity_id: media.living
+    description: Resume the simulated program associated with the evening arrival preference
+    operation: write
+    risk_class: R1
+    authorization: none
+    parameters:
+      - name: program
+        value_type: string
+        description: Allowlisted simulated program to resume
+        required: true
+        allowed_values: [Orbit Seven]
+    expected_effects:
+      - condition_id: effect.media-playing
+        description: Media playback becomes active
+        entity_id: media.living
+        property_id: playback_state
+        operator: equals
+        target_value: playing
+      - condition_id: effect.media-program
+        description: Media reports the usual evening program
+        entity_id: media.living
+        property_id: program
+        operator: equals
+        target_value: Orbit Seven
+    completion_evidence:
+      - condition_id: evidence.media-playing
+        description: Fresh media telemetry reports active playback
+        entity_id: media.living
+        property_id: playback_state
+        operator: equals
+        target_value: playing
+      - condition_id: evidence.media-program
+        description: Fresh media telemetry reports the usual evening program
+        entity_id: media.living
+        property_id: program
+        operator: equals
+        target_value: Orbit Seven
     timeout_seconds: 5.0
     max_attempts: 1
     idempotency: key_required
@@ -198,8 +362,78 @@ initial_observations:
     correlation_id: correlation.nominal-arrival
   - observation_id: observation.media-initial
     entity_id: media.living
-    property_id: readiness
+    property_id: playback_state
     value: idle
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T12:00:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.nominal-arrival
+  - observation_id: observation.media-program-initial
+    entity_id: media.living
+    property_id: program
+    value: none
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T12:00:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.nominal-arrival
+  - observation_id: observation.lighting-initial
+    entity_id: lighting.living
+    property_id: scene
+    value: off
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T12:00:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.nominal-arrival
+  - observation_id: observation.fan-initial
+    entity_id: fan.living
+    property_id: speed
+    value: off
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T12:00:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.nominal-arrival
+  - observation_id: observation.ice-initial
+    entity_id: ice-maker.kitchen
+    property_id: production_state
+    value: idle
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T12:00:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.nominal-arrival
+  - observation_id: observation.coffee-initial
+    entity_id: coffee.kitchen
+    property_id: brew_state
+    value: idle
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T12:00:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.nominal-arrival
+  - observation_id: observation.coffee-water
+    entity_id: coffee.kitchen
+    property_id: water_available
+    value: true
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T12:00:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.nominal-arrival
+  - observation_id: observation.coffee-cup
+    entity_id: coffee.kitchen
+    property_id: cup_present
+    value: true
     source_adapter_id: adapter.simulator
     observed_at: "2026-07-13T12:00:00Z"
     freshness_limit_seconds: 30.0
@@ -216,7 +450,7 @@ scripted_outcomes:
         property_id: door_state
         value: open
         source_adapter_id: adapter.simulator
-        observed_at: "2026-07-13T12:00:01Z"
+        observed_at: "2026-07-13T12:00:05Z"
         freshness_limit_seconds: 30.0
         confidence: 1.0
         quality: nominal
@@ -230,7 +464,7 @@ scripted_outcomes:
         property_id: readiness
         value: ready
         source_adapter_id: adapter.simulator
-        observed_at: "2026-07-13T12:00:02Z"
+        observed_at: "2026-07-13T12:00:01Z"
         freshness_limit_seconds: 30.0
         confidence: 1.0
         quality: nominal
@@ -245,21 +479,87 @@ scripted_outcomes:
         value: 22.0
         unit: degrees_celsius
         source_adapter_id: adapter.simulator
+        observed_at: "2026-07-13T12:00:02Z"
+        freshness_limit_seconds: 30.0
+        confidence: 1.0
+        quality: nominal
+        correlation_id: correlation.nominal-arrival
+  - capability_id: coffee.brew-arrival
+    attempt: 1
+    result: effect_observed
+    effect_observations:
+      - observation_id: observation.coffee-ready
+        entity_id: coffee.kitchen
+        property_id: brew_state
+        value: ready
+        source_adapter_id: adapter.simulator
         observed_at: "2026-07-13T12:00:03Z"
         freshness_limit_seconds: 30.0
         confidence: 1.0
         quality: nominal
         correlation_id: correlation.nominal-arrival
-  - capability_id: media.prepare
+  - capability_id: fan.set-comfort
     attempt: 1
     result: effect_observed
     effect_observations:
-      - observation_id: observation.media-ready
-        entity_id: media.living
-        property_id: readiness
-        value: ready
+      - observation_id: observation.fan-comfort
+        entity_id: fan.living
+        property_id: speed
+        value: low
         source_adapter_id: adapter.simulator
         observed_at: "2026-07-13T12:00:04Z"
+        freshness_limit_seconds: 30.0
+        confidence: 1.0
+        quality: nominal
+        correlation_id: correlation.nominal-arrival
+  - capability_id: ice.prepare
+    attempt: 1
+    result: effect_observed
+    effect_observations:
+      - observation_id: observation.ice-making
+        entity_id: ice-maker.kitchen
+        property_id: production_state
+        value: making
+        source_adapter_id: adapter.simulator
+        observed_at: "2026-07-13T12:00:06Z"
+        freshness_limit_seconds: 30.0
+        confidence: 1.0
+        quality: nominal
+        correlation_id: correlation.nominal-arrival
+  - capability_id: lighting.set-welcome
+    attempt: 1
+    result: effect_observed
+    effect_observations:
+      - observation_id: observation.lighting-welcome
+        entity_id: lighting.living
+        property_id: scene
+        value: welcome
+        source_adapter_id: adapter.simulator
+        observed_at: "2026-07-13T12:00:07Z"
+        freshness_limit_seconds: 30.0
+        confidence: 1.0
+        quality: nominal
+        correlation_id: correlation.nominal-arrival
+  - capability_id: media.resume-usual
+    attempt: 1
+    result: effect_observed
+    effect_observations:
+      - observation_id: observation.media-playing
+        entity_id: media.living
+        property_id: playback_state
+        value: playing
+        source_adapter_id: adapter.simulator
+        observed_at: "2026-07-13T12:00:08Z"
+        freshness_limit_seconds: 30.0
+        confidence: 1.0
+        quality: nominal
+        correlation_id: correlation.nominal-arrival
+      - observation_id: observation.media-program
+        entity_id: media.living
+        property_id: program
+        value: Orbit Seven
+        source_adapter_id: adapter.simulator
+        observed_at: "2026-07-13T12:00:08Z"
         freshness_limit_seconds: 30.0
         confidence: 1.0
         quality: nominal
@@ -271,9 +571,17 @@ expected:
     - garage.open
     - charger.prepare
     - climate.set-target
-    - media.prepare
+    - coffee.brew-arrival
+    - fan.set-comfort
+    - ice.prepare
+    - lighting.set-welcome
+    - media.resume-usual
   verified_condition_ids:
     - condition.garage-open
     - condition.charger-ready
     - condition.climate-ready
+    - condition.coffee-ready
+    - condition.fan-comfort
+    - condition.ice-making
+    - condition.lighting-welcome
     - condition.media-ready
