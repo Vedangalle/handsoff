@@ -1,0 +1,97 @@
+schema_version: "1.0.0"
+scenario_id: scenario.demand-response
+title: Energy demand response
+description: Active simulated demand response selects a bounded economy setpoint.
+simulation_only: true
+clock_start_at: "2026-07-13T12:00:00Z"
+goal:
+  goal_id: goal.arrival
+  objective: Prepare simulated room conditioning within the active energy constraint
+  requested_at: "2026-07-13T12:00:00Z"
+  deadline: "2026-07-13T12:05:00Z"
+  acceptance_conditions:
+    - condition_id: condition.climate-economy
+      description: Living-room setpoint is at the bounded economy target
+      entity_id: room.living
+      property_id: temperature_setpoint
+      operator: within
+      target_value: 25.0
+      unit: degrees_celsius
+      tolerance: 0.5
+capabilities:
+  - capability_id: climate.set-economy
+    version: "1.0.0"
+    adapter_id: adapter.simulator
+    target_entity_id: room.living
+    description: Set a simulated energy-bounded climate target
+    operation: write
+    risk_class: R1
+    authorization: none
+    parameters:
+      - name: target
+        value_type: number
+        description: Requested simulated temperature setpoint
+        required: true
+        unit: degrees_celsius
+        minimum: 16.0
+        maximum: 30.0
+    preconditions:
+      - condition_id: precondition.demand-response-active
+        description: Grid demand response is active
+        entity_id: grid.home
+        property_id: demand_response_active
+        operator: is_true
+    expected_effects:
+      - condition_id: effect.climate-economy
+        description: Climate setpoint becomes the economy target
+        entity_id: room.living
+        property_id: temperature_setpoint
+        operator: within
+        target_value: 25.0
+        unit: degrees_celsius
+        tolerance: 0.5
+    completion_evidence:
+      - condition_id: evidence.climate-economy
+        description: Fresh telemetry reports the economy target
+        entity_id: room.living
+        property_id: temperature_setpoint
+        operator: within
+        target_value: 25.0
+        unit: degrees_celsius
+        tolerance: 0.5
+    timeout_seconds: 5.0
+    max_attempts: 1
+    idempotency: key_required
+    supported_modes: [simulation]
+initial_observations:
+  - observation_id: observation.demand-response
+    entity_id: grid.home
+    property_id: demand_response_active
+    value: true
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T12:00:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.demand-response
+scripted_outcomes:
+  - capability_id: climate.set-economy
+    attempt: 1
+    result: effect_observed
+    effect_observations:
+      - observation_id: observation.climate-economy
+        entity_id: room.living
+        property_id: temperature_setpoint
+        value: 25.0
+        unit: degrees_celsius
+        source_adapter_id: adapter.simulator
+        observed_at: "2026-07-13T12:00:01Z"
+        freshness_limit_seconds: 30.0
+        confidence: 1.0
+        quality: nominal
+        correlation_id: correlation.demand-response
+expected:
+  policy_decision: allow
+  terminal_plan_state: succeeded
+  dispatched_capability_ids: [climate.set-economy]
+  verified_condition_ids: [condition.climate-economy]

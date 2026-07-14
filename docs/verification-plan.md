@@ -2,9 +2,9 @@
 
 ## Evidence standard
 
-Verification distinguishes requirements, implemented checks, observed results, and future acceptance criteria. Passing Milestone 0 validates repository foundations only; it is not evidence that runtime safety or product behavior exists.
+Verification distinguishes requirements, implemented checks, observed results, and future acceptance criteria. Passing Milestone 1 validates contracts, fixtures, and repository foundations only; it is not evidence that runtime safety or product behavior exists.
 
-## Milestone 0 gates
+## Milestone 1 gates
 
 | Gate | Command | Evidence |
 |---|---|---|
@@ -12,8 +12,8 @@ Verification distinguishes requirements, implemented checks, observed results, a
 | Formatting | `uv run --frozen ruff format --check .` | All supported source files match the configured formatter |
 | Linting | `uv run --frozen ruff check .` | Configured Ruff rules report no defects |
 | Static typing | `uv run --frozen mypy src scripts tests` | Strict Python 3.12 type analysis passes |
-| Tests | `uv run --frozen coverage run -m pytest` | Foundation tests pass with strict pytest configuration |
-| Branch coverage | `uv run --frozen coverage report` | Package coverage meets the configured 100% Milestone 0 threshold |
+| Tests | `uv run --frozen coverage run -m pytest` | Unit, property, and contract tests pass with strict pytest configuration |
+| Branch coverage | `uv run --frozen coverage report` | Package line and branch coverage meet the configured 100% threshold |
 | Lock consistency | `uv lock --check` | Declarations and lockfile agree |
 | Dependency audit | `uv run --frozen --all-extras pip-audit --local --cache-dir .cache/pip-audit` | Installed core, development, and optional Gemini dependencies have no reported known vulnerabilities |
 | Secret scan | `uv run --frozen python scripts/check_secrets.py` | Git-visible files have no detected candidates; candidate values are never printed |
@@ -31,7 +31,26 @@ Before handoff, inspect `git diff --stat`, `git diff --check`, all untracked fil
 
 ## Documentation validation limitation
 
-The Milestone 0 documentation script verifies relative targets and Mermaid fence structure. Mermaid diagrams must also be visually rendered and reviewed when a renderer becomes part of the documented toolchain. Structural validation is not a full Mermaid parser.
+The documentation script verifies relative targets and Mermaid fence structure. Mermaid diagrams must also be visually rendered and reviewed when a renderer becomes part of the documented toolchain. Structural validation is not a full Mermaid parser.
+
+## Milestone 1 contract evidence
+
+The Milestone 1 suite verifies:
+
+- strict immutable models reject unknown fields and invalid coercions;
+- timestamps are aware and explicitly UTC;
+- observations enforce finite positive freshness and bounded confidence;
+- capabilities enforce risk, authority, idempotency, evidence, compensation, and supported-mode rules;
+- plans reject duplicate identifiers, undeclared dependencies, self-dependencies, and cycles;
+- R3 policy results can only deny, and plan-level policy decisions must aggregate action results consistently;
+- approval scopes are unique and time-bounded;
+- every declared plan/action transition is accepted and every undeclared transition is rejected;
+- ledger event kinds agree with their payload types;
+- the deterministic clock cannot move backward;
+- all six YAML fixtures validate, round-trip deterministically, and grant no live or R3 authority; and
+- scenario expectations cannot contradict or reference undeclared capabilities or conditions.
+
+These checks prove contract behavior. They do not prove that the future policy kernel chooses the correct result or that the future executor follows the transition contracts.
 
 ## Future test hierarchy
 
@@ -71,4 +90,4 @@ Every result must record model identifier, provider, prompt version, schema vers
 
 The architecture is demonstrated only when the deterministic core operates without Gemini or Supermemory, all six approved reference scenarios are reproducible, actions have explicit preconditions and acceptance conditions, prohibited and stale-state actions are rejected, API acceptance is never reported as physical verification, every scenario produces an inspectable trace, invalid model plans have no side effects, and no secret or real household data is required.
 
-These criteria are deferred beyond Milestone 0.
+These runtime acceptance criteria are deferred beyond Milestone 1.

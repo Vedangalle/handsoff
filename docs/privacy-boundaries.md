@@ -4,7 +4,7 @@
 
 Handsoff may eventually process location, occupancy, routines, schedules, device state, media context, energy use, goals, approvals, and action history. These data can reveal sensitive household behavior even when no field is labeled personal information.
 
-Milestone 0 processes none of this operational data. This document defines constraints for later work.
+Milestone 1 processes only synthetic, simulation-labeled contract fixtures. It accepts no real household data and contacts no external provider. This document defines constraints for later runtime work.
 
 ## Data zones
 

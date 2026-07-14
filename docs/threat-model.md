@@ -2,7 +2,7 @@
 
 ## Scope and status
 
-This threat model covers the approved prototype architecture. It defines design requirements; Milestone 0 does not implement or validate runtime security controls. The prototype is not approved for consequential hardware or real actuation.
+This threat model covers the approved prototype architecture. Milestone 1 implements schema-level controls and negative contract tests, not runtime security controls. The prototype is not approved for consequential hardware or real actuation.
 
 ## Protected assets
 
@@ -66,7 +66,7 @@ This threat model covers the approved prototype architecture. It defines design 
 
 Later milestones must test invalid transitions, stale observations, capability hallucination, unknown fields, expired approvals, duplicate commands, timeout behavior, malicious external text, provider unavailability, and false success. Security tests must establish negative properties such as “a denied action is never dispatched,” not only successful examples.
 
-Milestone 0 gates dependency vulnerabilities, Git-visible secret candidates, ignored sensitive paths, lock consistency, and repository scope. These supply-chain and hygiene checks do not constitute penetration testing or production security evidence.
+Milestone 1 additionally rejects undeclared fields and references, inconsistent policy results, illegal transitions, R3 authorization, non-simulation reference authority, cyclic plans, and contradictory scenario expectations. Repository gates cover dependency vulnerabilities, Git-visible secret candidates, ignored sensitive paths, lock consistency, and milestone scope. These contract, supply-chain, and hygiene checks do not constitute penetration testing or production security evidence.
 
 ## Residual risk
 

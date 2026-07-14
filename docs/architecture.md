@@ -112,7 +112,7 @@ Mode is explicit configuration included in every trace. It is never inferred fro
 
 ## Target repository structure
 
-The approved end-state structure is incremental. Milestone 0 creates only documentation, package metadata, validation scripts, and a package boundary. Later paths are created when their milestones are authorized.
+The approved end-state structure is incremental. Milestone 0 created documentation, package metadata, validation scripts, and the package boundary. Milestone 1 adds strict domain contracts, the clock port and deterministic clock adapter, scenario fixtures, and contract-focused tests. Later runtime paths are created only when their milestones are authorized.
 
 ```text
 handsoff/
@@ -132,9 +132,18 @@ handsoff/
 │   └── adr/
 ├── src/handsoff/
 │   ├── domain/
+│   │   ├── goals.py
+│   │   ├── plans.py
+│   │   ├── capabilities.py
+│   │   ├── observations.py
+│   │   ├── policies.py
+│   │   ├── execution.py
+│   │   ├── events.py
+│   │   └── scenarios.py
 │   ├── application/
-│   ├── ports/
+│   ├── ports/clock.py
 │   ├── adapters/
+│   │   └── clock/deterministic.py
 │   ├── api/
 │   └── config.py
 ├── web/
@@ -143,7 +152,7 @@ handsoff/
 └── scripts/
 ```
 
-The proposal included a `LICENSE` path. It is intentionally absent until Vedang selects a license. The target code subpackages, scenario fixtures, demo runner, and web directories are deferred because creating their behavior is outside Milestone 0.
+The proposal included a `LICENSE` path. It is intentionally absent until Vedang selects a license. Application services, runtime adapters, the demo runner, API, and web directories remain deferred beyond Milestone 1.
 
 ## Dependency boundaries
 
@@ -163,4 +172,12 @@ No agent framework, message broker, container orchestrator, vector database, emb
 
 ## Current implementation boundary
 
-Milestone 0 implements none of the bounded contexts. `src/handsoff/__init__.py` provides package identity only. The architecture above is specified, not yet demonstrated.
+Milestone 1 implements the contract layer, not the runtime:
+
+- immutable strict schemas for goals, acceptance conditions, observations, capabilities, plans, policy results, approvals, plan/action transitions, verification results, ledger events, and scenarios;
+- schema-level rejection of unknown fields, non-UTC timestamps, invalid risk/authority combinations, R3 authorization, inconsistent aggregate policy results, illegal transitions, plan cycles, contradictory expectations, and undeclared scenario references;
+- a clock port and monotonic deterministic UTC test clock;
+- six self-contained, simulation-only reference fixtures; and
+- unit, property, and contract tests for these boundaries.
+
+No service evaluates policy, advances an execution state machine, dispatches a capability, mutates world state, persists an event, verifies an outcome, serves an API, or contacts an external provider. Those behaviors remain Milestone 2 or later.

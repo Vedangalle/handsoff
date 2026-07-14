@@ -5,7 +5,7 @@
 <p align="center"><strong>A local-first, vendor-independent runtime for turning human goals into policy-checked actions and verified real-world outcomes.</strong></p>
 
 <p align="center">
-  <img alt="Project status: Milestone 0" src="https://img.shields.io/badge/status-Milestone%200-1f6feb">
+  <img alt="Project status: Milestone 1" src="https://img.shields.io/badge/status-Milestone%201-1f6feb">
   <img alt="Python 3.12" src="https://img.shields.io/badge/python-3.12-3776AB?logo=python&amp;logoColor=white">
   <img alt="Dependencies locked with uv" src="https://img.shields.io/badge/dependencies-uv%20locked-6f42c1">
   <img alt="Actuation: none" src="https://img.shields.io/badge/real%20actuation-none-d73a49">
@@ -15,7 +15,7 @@
 <p align="center"><em>Internal prototype description: Physical Codex</em></p>
 
 > [!IMPORTANT]
-> Handsoff is currently at **Milestone 0: repository foundation**. The architecture, safety boundaries, dependency graph, documentation, and validation gates exist. The deterministic runtime, domain models, API, simulator, external-provider adapters, integrations, scenarios, and user interface do not. This repository does not control real devices.
+> Handsoff is currently at **Milestone 1: contracts and deterministic tests**. Strict domain contracts, executable policy-result and transition invariants, a deterministic test clock, six reference scenario fixtures, and repository quality gates exist. The policy kernel, execution engine, simulator behavior, persistence, API, external-provider adapters, integrations, and user interface do not. This repository does not control real devices.
 
 ## The idea
 
@@ -107,7 +107,7 @@ See [Architecture](docs/architecture.md) for the fixed architectural decisions, 
 
 ## Safety invariants
 
-These are architectural requirements. Milestone 0 documents and validates the repository foundation; later milestones must implement and prove the runtime properties.
+These are architectural requirements. Milestone 1 makes their data and transition boundaries executable as strict contracts; Milestone 2 must implement and prove the runtime behavior.
 
 1. **No model-to-actuator path.** Model output is untrusted proposed data.
 2. **Least authority.** Every adapter exposes typed, versioned, allowlisted capabilities.
@@ -142,7 +142,7 @@ The architecture is not demonstrated by a single happy path. The approved scenar
 | Partial failure | The trace reports partial success, failure, or compensation—never false success |
 | Malicious external text | Untrusted content cannot create an undeclared capability |
 
-These are future acceptance tests, not implemented Milestone 0 results.
+All six named reference fixtures are committed and schema-validated. Their expected results are test vectors for the future deterministic runtime, not observed runtime results.
 
 ## Current implementation status
 
@@ -151,7 +151,10 @@ These are future acceptance tests, not implemented Milestone 0 results.
 | Git and Python foundation | Implemented | Python 3.12 project metadata, package boundary, and locked dependency graph |
 | Engineering documentation | Implemented | Product charter, architecture, privacy boundaries, threat model, verification plan, and ADRs |
 | Repository quality gates | Implemented | Formatting, linting, strict typing, tests, coverage, audit, secret, docs, and repository checks |
-| Runtime domain contracts | Not implemented | Specified for Milestone 1 |
+| Strict domain contracts | Implemented | Goals, observations, capabilities, plans, policy results, approvals, transitions, events, verification, and scenarios |
+| Policy and transition invariants | Implemented at contract layer | Contradictory policy results, R3 authorization, illegal state transitions, cycles, and undeclared references are rejected |
+| Deterministic test clock | Implemented | UTC-only monotonic clock behind a clock port |
+| Reference scenario fixtures | Implemented | Six self-contained simulation-only YAML fixtures with deterministic expected outcomes |
 | Deterministic runtime and simulator | Not implemented | Specified for Milestone 2 |
 | Gemini planner adapter | Not implemented | Dependency boundary reserved; implementation deferred to Milestone 3 |
 | Operator interface | Not implemented | Thin local FastAPI/web boundary specified for Milestone 4 |
@@ -159,7 +162,7 @@ These are future acceptance tests, not implemented Milestone 0 results.
 | Home Assistant integration | Not implemented | Read-only shadow integration considered only after the simulator baseline |
 | Real device actuation | Prohibited | No real actuation in the prototype |
 
-The package version is `0.0.0` to reflect this foundation-only state. There is currently no application server, command-line interface, demo runner, or supported end-user workflow.
+The package version is `0.1.0` to identify the completed contract milestone. There is currently no application server, command-line interface, demo runner, or supported end-user workflow.
 
 ## Autonomy modes
 
@@ -200,13 +203,37 @@ handsoff/
 │   ├── check_secrets.py
 │   └── validate.py
 ├── src/handsoff/
-│   ├── __init__.py                 # Package identity; no runtime behavior
+│   ├── adapters/clock/
+│   │   └── deterministic.py        # Explicitly advanced UTC test clock
+│   ├── domain/
+│   │   ├── capabilities.py
+│   │   ├── events.py
+│   │   ├── execution.py
+│   │   ├── goals.py
+│   │   ├── observations.py
+│   │   ├── plans.py
+│   │   ├── policies.py
+│   │   └── scenarios.py
+│   ├── ports/
+│   │   └── clock.py
+│   ├── __init__.py
 │   └── py.typed
+├── scenarios/
+│   ├── blocked_garage.yaml
+│   ├── demand_response.yaml
+│   ├── false_proximity.yaml
+│   ├── nominal_arrival.yaml
+│   ├── partial_failure.yaml
+│   └── stale_telemetry.yaml
 └── tests/
+    ├── contract/
+    ├── fixtures/
+    ├── property/
+    ├── unit/
     └── test_foundation.py
 ```
 
-Domain, application, port, adapter, API, scenario, simulator, and web paths will be added only when their corresponding milestones are authorized. The complete target layout is maintained in [Architecture](docs/architecture.md).
+Application services, device/model/persistence/memory adapters, API, simulator behavior, and web paths will be added only when their corresponding milestones are authorized. The complete target layout is maintained in [Architecture](docs/architecture.md).
 
 ## Getting started
 
@@ -233,10 +260,10 @@ To reproduce the environment used by the complete validation suite, including th
 uv sync --frozen --all-extras
 ```
 
-No credential is required for Milestone 0. `.env.example` contains names and empty values only. Do not add real credentials to fixtures, prompts, logs, screenshots, tests, or version control.
+No credential is required for Milestone 1. `.env.example` contains names and empty values only. Do not add real credentials to fixtures, prompts, logs, screenshots, tests, or version control.
 
 > [!NOTE]
-> There is no application to launch at Milestone 0. A successful installation proves the repository foundation can be reproduced; it does not prove runtime behavior.
+> There is no application to launch at Milestone 1. A successful installation and test run prove the contract surface and fixtures can be reproduced; they do not prove runtime behavior.
 
 ## Validation
 
@@ -256,7 +283,7 @@ The aggregate command stops at the first failure and executes:
 | Tests | `coverage run -m pytest` | The current test suite passes under strict pytest settings |
 | Coverage | `coverage report` | Package branch coverage meets the configured threshold |
 | Lock consistency | `uv lock --check` | `pyproject.toml` and `uv.lock` agree |
-| Dependency audit | `pip-audit --local` | Installed dependencies have no reported known vulnerabilities |
+| Dependency audit | `pip-audit --local --cache-dir .cache/pip-audit` | Installed dependencies have no reported known vulnerabilities |
 | Secret scan | `python scripts/check_secrets.py` | Git-visible files contain no detected secret candidates |
 | Documentation | `python scripts/check_docs.py` | Required documents, relative links, and Mermaid fence structure pass |
 | Repository boundary | `python scripts/check_repository.py` | Milestone, branch, placeholder, ignore, Python, and license invariants hold |
@@ -290,7 +317,7 @@ The prototype core does not use LangChain, a general agent framework, Celery, Re
 | Milestone | Scope | State |
 |---|---|---|
 | **M0 — Repository foundation** | Git, Python project, lockfile, documentation, ADRs, and local quality gates | **Complete** |
-| **M1 — Contracts and deterministic tests** | Domain vocabulary, schemas, test clock, scenario schema, fixtures, and failing invariant tests | Not started |
+| **M1 — Contracts and deterministic tests** | Domain vocabulary, strict schemas, test clock, scenario schema, six fixtures, and fail-first invariant tests | **Complete** |
 | **M2 — Deterministic runtime** | World model, capability registry, policy kernel, state machine, verifier, ledger, and simulator | Not started |
 | **M3 — Gemini planner** | Minimized prompts, structured plan proposals, deterministic fallback, and model evaluation | Not started |
 | **M4 — Operator interface** | World state, proposed plan, policy reasons, approval boundary, execution timeline, and replay | Not started |

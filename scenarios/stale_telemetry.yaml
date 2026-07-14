@@ -1,0 +1,62 @@
+schema_version: "1.0.0"
+scenario_id: scenario.stale-telemetry
+title: Stale destination telemetry
+description: High-confidence but expired simulated telemetry blocks the garage action.
+simulation_only: true
+clock_start_at: "2026-07-13T12:00:00Z"
+goal:
+  goal_id: goal.arrival
+  objective: Prepare the simulated garage for arrival
+  requested_at: "2026-07-13T12:00:00Z"
+  deadline: "2026-07-13T12:05:00Z"
+  acceptance_conditions:
+    - condition_id: condition.garage-open
+      description: Garage door is open
+      entity_id: garage.main
+      property_id: door_state
+      operator: equals
+      target_value: open
+capabilities:
+  - capability_id: garage.open
+    version: "1.0.0"
+    adapter_id: adapter.simulator
+    target_entity_id: garage.main
+    description: Open the simulated garage door
+    operation: write
+    risk_class: R2
+    authorization: none
+    expected_effects:
+      - condition_id: effect.garage-open
+        description: Garage door becomes open
+        entity_id: garage.main
+        property_id: door_state
+        operator: equals
+        target_value: open
+    completion_evidence:
+      - condition_id: evidence.garage-open
+        description: Fresh telemetry reports the garage open
+        entity_id: garage.main
+        property_id: door_state
+        operator: equals
+        target_value: open
+    timeout_seconds: 5.0
+    max_attempts: 1
+    idempotency: key_required
+    supported_modes: [simulation]
+initial_observations:
+  - observation_id: observation.destination-confidence-stale
+    entity_id: vehicle.primary
+    property_id: destination_confidence
+    value: 0.99
+    unit: ratio
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T11:50:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.stale-telemetry
+expected:
+  policy_decision: deny
+  terminal_plan_state: rejected
+  withheld_capability_ids: [garage.open]
+  unsatisfied_condition_ids: [condition.garage-open]

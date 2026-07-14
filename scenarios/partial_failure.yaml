@@ -1,0 +1,124 @@
+schema_version: "1.0.0"
+scenario_id: scenario.partial-failure
+title: Partial simulated execution failure
+description: Charger preparation succeeds while media preparation fails deterministically.
+simulation_only: true
+clock_start_at: "2026-07-13T12:00:00Z"
+goal:
+  goal_id: goal.arrival
+  objective: Prepare the simulated charger and media environment for arrival
+  requested_at: "2026-07-13T12:00:00Z"
+  deadline: "2026-07-13T12:05:00Z"
+  acceptance_conditions:
+    - condition_id: condition.charger-ready
+      description: Charger reports ready
+      entity_id: charger.home
+      property_id: readiness
+      operator: equals
+      target_value: ready
+    - condition_id: condition.media-ready
+      description: Media reports ready
+      entity_id: media.living
+      property_id: readiness
+      operator: equals
+      target_value: ready
+capabilities:
+  - capability_id: charger.prepare
+    version: "1.0.0"
+    adapter_id: adapter.simulator
+    target_entity_id: charger.home
+    description: Prepare the simulated charger without energizing it
+    operation: write
+    risk_class: R1
+    authorization: none
+    expected_effects:
+      - condition_id: effect.charger-ready
+        description: Charger becomes ready
+        entity_id: charger.home
+        property_id: readiness
+        operator: equals
+        target_value: ready
+    completion_evidence:
+      - condition_id: evidence.charger-ready
+        description: Fresh charger telemetry reports ready
+        entity_id: charger.home
+        property_id: readiness
+        operator: equals
+        target_value: ready
+    timeout_seconds: 5.0
+    max_attempts: 1
+    idempotency: key_required
+    supported_modes: [simulation]
+  - capability_id: media.prepare
+    version: "1.0.0"
+    adapter_id: adapter.simulator
+    target_entity_id: media.living
+    description: Prepare simulated media without starting playback
+    operation: write
+    risk_class: R1
+    authorization: none
+    expected_effects:
+      - condition_id: effect.media-ready
+        description: Media becomes ready
+        entity_id: media.living
+        property_id: readiness
+        operator: equals
+        target_value: ready
+    completion_evidence:
+      - condition_id: evidence.media-ready
+        description: Fresh media telemetry reports ready
+        entity_id: media.living
+        property_id: readiness
+        operator: equals
+        target_value: ready
+    timeout_seconds: 5.0
+    max_attempts: 1
+    idempotency: key_required
+    supported_modes: [simulation]
+initial_observations:
+  - observation_id: observation.charger-initial
+    entity_id: charger.home
+    property_id: readiness
+    value: unavailable
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T12:00:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.partial-failure
+  - observation_id: observation.media-initial
+    entity_id: media.living
+    property_id: readiness
+    value: idle
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T12:00:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.partial-failure
+scripted_outcomes:
+  - capability_id: charger.prepare
+    attempt: 1
+    result: effect_observed
+    effect_observations:
+      - observation_id: observation.charger-ready
+        entity_id: charger.home
+        property_id: readiness
+        value: ready
+        source_adapter_id: adapter.simulator
+        observed_at: "2026-07-13T12:00:01Z"
+        freshness_limit_seconds: 30.0
+        confidence: 1.0
+        quality: nominal
+        correlation_id: correlation.partial-failure
+  - capability_id: media.prepare
+    attempt: 1
+    result: failed
+expected:
+  policy_decision: allow
+  terminal_plan_state: partially_succeeded
+  dispatched_capability_ids:
+    - charger.prepare
+    - media.prepare
+  verified_condition_ids: [condition.charger-ready]
+  unsatisfied_condition_ids: [condition.media-ready]

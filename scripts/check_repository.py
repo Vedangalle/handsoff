@@ -1,12 +1,14 @@
-"""Validate Milestone 0 repository invariants without reading credential files."""
+"""Validate Milestone 1 repository invariants without reading credential files."""
 
 from __future__ import annotations
 
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+EXPECTED_VERSION = "0.1.0"
 REQUIRED_FILES = (
     "AGENTS.md",
     "README.md",
@@ -17,20 +19,51 @@ REQUIRED_FILES = (
     ".gitignore",
     "src/handsoff/__init__.py",
     "src/handsoff/py.typed",
+    "src/handsoff/domain/__init__.py",
+    "src/handsoff/domain/goals.py",
+    "src/handsoff/domain/plans.py",
+    "src/handsoff/domain/capabilities.py",
+    "src/handsoff/domain/observations.py",
+    "src/handsoff/domain/policies.py",
+    "src/handsoff/domain/execution.py",
+    "src/handsoff/domain/events.py",
+    "src/handsoff/domain/scenarios.py",
+    "src/handsoff/ports/__init__.py",
+    "src/handsoff/ports/clock.py",
+    "src/handsoff/adapters/__init__.py",
+    "src/handsoff/adapters/clock/__init__.py",
+    "src/handsoff/adapters/clock/deterministic.py",
+    "scenarios/nominal_arrival.yaml",
+    "scenarios/false_proximity.yaml",
+    "scenarios/blocked_garage.yaml",
+    "scenarios/demand_response.yaml",
+    "scenarios/stale_telemetry.yaml",
+    "scenarios/partial_failure.yaml",
     "tests/test_foundation.py",
+    "tests/contract/test_reference_scenarios.py",
+    "tests/property/test_contract_properties.py",
+    "tests/unit/adapters/test_deterministic_clock.py",
+    "tests/unit/domain/test_capabilities.py",
+    "tests/unit/domain/test_events.py",
+    "tests/unit/domain/test_execution.py",
+    "tests/unit/domain/test_goals.py",
+    "tests/unit/domain/test_observations.py",
+    "tests/unit/domain/test_plans.py",
+    "tests/unit/domain/test_policies.py",
+    "tests/unit/domain/test_scenarios.py",
     "scripts/check_docs.py",
     "scripts/check_repository.py",
     "scripts/check_secrets.py",
     "scripts/validate.py",
 )
-DEFERRED_RUNTIME_PATHS = (
-    "src/handsoff/domain",
+DEFERRED_POST_MILESTONE_1_PATHS = (
     "src/handsoff/application",
-    "src/handsoff/ports",
-    "src/handsoff/adapters",
+    "src/handsoff/adapters/planner",
+    "src/handsoff/adapters/devices",
+    "src/handsoff/adapters/persistence",
+    "src/handsoff/adapters/memory",
     "src/handsoff/api",
     "src/handsoff/config.py",
-    "scenarios",
     "web",
     "scripts/run_demo.py",
 )
@@ -80,8 +113,16 @@ def validate_sensitive_ignores(errors: list[str]) -> None:
             errors.append(f"sensitive or runtime path is not ignored: {path}")
 
 
+def validate_project_version(errors: list[str]) -> None:
+    """Require package metadata to identify the completed contract milestone."""
+    with (ROOT / "pyproject.toml").open("rb") as project_file:
+        project = tomllib.load(project_file)
+    if project.get("project", {}).get("version") != EXPECTED_VERSION:
+        errors.append(f"project version must be {EXPECTED_VERSION} for Milestone 1")
+
+
 def main() -> int:
-    """Run Milestone 0 structural checks."""
+    """Run Milestone 1 structural checks."""
     errors: list[str] = []
 
     errors.extend(
@@ -94,8 +135,8 @@ def main() -> int:
         errors.append("LICENSE exists even though the license decision is pending")
 
     errors.extend(
-        f"post-Milestone 0 runtime path exists: {relative_path}"
-        for relative_path in DEFERRED_RUNTIME_PATHS
+        f"post-Milestone 1 runtime path exists: {relative_path}"
+        for relative_path in DEFERRED_POST_MILESTONE_1_PATHS
         if (ROOT / relative_path).exists()
     )
 
@@ -106,8 +147,9 @@ def main() -> int:
         errors.append(f"validation requires Python 3.12, found {sys.version.split()[0]}")
 
     if git_output("branch", "--show-current") != "main":
-        errors.append("initial branch is not main")
+        errors.append("repository branch is not main")
 
+    validate_project_version(errors)
     validate_placeholder_environment(errors)
     validate_sensitive_ignores(errors)
 
@@ -116,7 +158,7 @@ def main() -> int:
             print(f"ERROR: {error}")
         return 1
 
-    print("Repository validation passed (Milestone 0 boundaries preserved).")
+    print("Repository validation passed (Milestone 1 boundaries preserved).")
     return 0
 
 

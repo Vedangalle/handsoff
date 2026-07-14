@@ -33,7 +33,7 @@ Given a goal, timestamped world state, declared capabilities, and explicit const
 - detect incomplete or contradictory outcomes; and
 - produce a reproducible evidence trace.
 
-These are design requirements, not claims of implemented Milestone 0 behavior.
+These are product requirements, not claims of implemented runtime behavior. Milestone 1 implements contracts and test vectors only.
 
 ## Product principles
 
@@ -61,4 +61,4 @@ These are design requirements, not claims of implemented Milestone 0 behavior.
 
 ## Current status
 
-Milestone 0 establishes only the repository, dependency, documentation, and validation foundation. Product behavior is deferred to later approved milestones.
+Milestone 1 establishes strict domain contracts, policy-result and transition invariants, a deterministic test clock, and six schema-validated reference fixtures. It does not implement the policy kernel, execution engine, simulator behavior, persistence, API, provider adapters, or user interface. Product behavior remains deferred to later approved milestones.

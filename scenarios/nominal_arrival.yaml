@@ -1,0 +1,268 @@
+schema_version: "1.0.0"
+scenario_id: scenario.nominal-arrival
+title: Nominal simulated arrival
+description: All four simulated preparation capabilities produce fresh declared effects.
+simulation_only: true
+clock_start_at: "2026-07-13T12:00:00Z"
+goal:
+  goal_id: goal.arrival
+  objective: Prepare the simulated environment for arrival in five minutes
+  requested_at: "2026-07-13T12:00:00Z"
+  deadline: "2026-07-13T12:05:00Z"
+  acceptance_conditions:
+    - condition_id: condition.garage-open
+      description: Garage door is open
+      entity_id: garage.main
+      property_id: door_state
+      operator: equals
+      target_value: open
+    - condition_id: condition.charger-ready
+      description: Charger reports ready
+      entity_id: charger.home
+      property_id: readiness
+      operator: equals
+      target_value: ready
+    - condition_id: condition.climate-ready
+      description: Living-room setpoint is within tolerance
+      entity_id: room.living
+      property_id: temperature_setpoint
+      operator: within
+      target_value: 22.0
+      unit: degrees_celsius
+      tolerance: 0.5
+    - condition_id: condition.media-ready
+      description: Living-room media reports ready
+      entity_id: media.living
+      property_id: readiness
+      operator: equals
+      target_value: ready
+capabilities:
+  - capability_id: garage.open
+    version: "1.0.0"
+    adapter_id: adapter.simulator
+    target_entity_id: garage.main
+    description: Open the simulated garage door
+    operation: write
+    risk_class: R2
+    authorization: none
+    expected_effects:
+      - condition_id: effect.garage-open
+        description: Garage door becomes open
+        entity_id: garage.main
+        property_id: door_state
+        operator: equals
+        target_value: open
+    completion_evidence:
+      - condition_id: evidence.garage-open
+        description: Fresh telemetry reports the garage open
+        entity_id: garage.main
+        property_id: door_state
+        operator: equals
+        target_value: open
+    timeout_seconds: 5.0
+    max_attempts: 1
+    idempotency: key_required
+    supported_modes: [simulation]
+  - capability_id: charger.prepare
+    version: "1.0.0"
+    adapter_id: adapter.simulator
+    target_entity_id: charger.home
+    description: Prepare the simulated charger without energizing it
+    operation: write
+    risk_class: R1
+    authorization: none
+    expected_effects:
+      - condition_id: effect.charger-ready
+        description: Charger becomes ready
+        entity_id: charger.home
+        property_id: readiness
+        operator: equals
+        target_value: ready
+    completion_evidence:
+      - condition_id: evidence.charger-ready
+        description: Fresh charger telemetry reports ready
+        entity_id: charger.home
+        property_id: readiness
+        operator: equals
+        target_value: ready
+    timeout_seconds: 5.0
+    max_attempts: 1
+    idempotency: key_required
+    supported_modes: [simulation]
+  - capability_id: climate.set-target
+    version: "1.0.0"
+    adapter_id: adapter.simulator
+    target_entity_id: room.living
+    description: Set the simulated living-room temperature target
+    operation: write
+    risk_class: R1
+    authorization: none
+    parameters:
+      - name: target
+        value_type: number
+        description: Requested simulated temperature setpoint
+        required: true
+        unit: degrees_celsius
+        minimum: 16.0
+        maximum: 30.0
+    expected_effects:
+      - condition_id: effect.climate-ready
+        description: Temperature setpoint becomes the requested target
+        entity_id: room.living
+        property_id: temperature_setpoint
+        operator: within
+        target_value: 22.0
+        unit: degrees_celsius
+        tolerance: 0.5
+    completion_evidence:
+      - condition_id: evidence.climate-ready
+        description: Fresh climate telemetry reports the target
+        entity_id: room.living
+        property_id: temperature_setpoint
+        operator: within
+        target_value: 22.0
+        unit: degrees_celsius
+        tolerance: 0.5
+    timeout_seconds: 5.0
+    max_attempts: 1
+    idempotency: key_required
+    supported_modes: [simulation]
+  - capability_id: media.prepare
+    version: "1.0.0"
+    adapter_id: adapter.simulator
+    target_entity_id: media.living
+    description: Prepare simulated media without starting playback
+    operation: write
+    risk_class: R1
+    authorization: none
+    expected_effects:
+      - condition_id: effect.media-ready
+        description: Media becomes ready
+        entity_id: media.living
+        property_id: readiness
+        operator: equals
+        target_value: ready
+    completion_evidence:
+      - condition_id: evidence.media-ready
+        description: Fresh media telemetry reports ready
+        entity_id: media.living
+        property_id: readiness
+        operator: equals
+        target_value: ready
+    timeout_seconds: 5.0
+    max_attempts: 1
+    idempotency: key_required
+    supported_modes: [simulation]
+initial_observations:
+  - observation_id: observation.garage-initial
+    entity_id: garage.main
+    property_id: door_state
+    value: closed
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T12:00:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.nominal-arrival
+  - observation_id: observation.charger-initial
+    entity_id: charger.home
+    property_id: readiness
+    value: unavailable
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T12:00:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.nominal-arrival
+  - observation_id: observation.climate-initial
+    entity_id: room.living
+    property_id: temperature_setpoint
+    value: 28.0
+    unit: degrees_celsius
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T12:00:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.nominal-arrival
+  - observation_id: observation.media-initial
+    entity_id: media.living
+    property_id: readiness
+    value: idle
+    source_adapter_id: adapter.simulator
+    observed_at: "2026-07-13T12:00:00Z"
+    freshness_limit_seconds: 30.0
+    confidence: 1.0
+    quality: nominal
+    correlation_id: correlation.nominal-arrival
+scripted_outcomes:
+  - capability_id: garage.open
+    attempt: 1
+    result: effect_observed
+    effect_observations:
+      - observation_id: observation.garage-open
+        entity_id: garage.main
+        property_id: door_state
+        value: open
+        source_adapter_id: adapter.simulator
+        observed_at: "2026-07-13T12:00:01Z"
+        freshness_limit_seconds: 30.0
+        confidence: 1.0
+        quality: nominal
+        correlation_id: correlation.nominal-arrival
+  - capability_id: charger.prepare
+    attempt: 1
+    result: effect_observed
+    effect_observations:
+      - observation_id: observation.charger-ready
+        entity_id: charger.home
+        property_id: readiness
+        value: ready
+        source_adapter_id: adapter.simulator
+        observed_at: "2026-07-13T12:00:02Z"
+        freshness_limit_seconds: 30.0
+        confidence: 1.0
+        quality: nominal
+        correlation_id: correlation.nominal-arrival
+  - capability_id: climate.set-target
+    attempt: 1
+    result: effect_observed
+    effect_observations:
+      - observation_id: observation.climate-ready
+        entity_id: room.living
+        property_id: temperature_setpoint
+        value: 22.0
+        unit: degrees_celsius
+        source_adapter_id: adapter.simulator
+        observed_at: "2026-07-13T12:00:03Z"
+        freshness_limit_seconds: 30.0
+        confidence: 1.0
+        quality: nominal
+        correlation_id: correlation.nominal-arrival
+  - capability_id: media.prepare
+    attempt: 1
+    result: effect_observed
+    effect_observations:
+      - observation_id: observation.media-ready
+        entity_id: media.living
+        property_id: readiness
+        value: ready
+        source_adapter_id: adapter.simulator
+        observed_at: "2026-07-13T12:00:04Z"
+        freshness_limit_seconds: 30.0
+        confidence: 1.0
+        quality: nominal
+        correlation_id: correlation.nominal-arrival
+expected:
+  policy_decision: allow
+  terminal_plan_state: succeeded
+  dispatched_capability_ids:
+    - garage.open
+    - charger.prepare
+    - climate.set-target
+    - media.prepare
+  verified_condition_ids:
+    - condition.garage-open
+    - condition.charger-ready
+    - condition.climate-ready
+    - condition.media-ready

@@ -1,6 +1,3 @@
-"""Handsoff package boundary.
+"""Handsoff contract package; deterministic runtime implementation is deferred."""
 
-Milestone 0 intentionally contains no runtime implementation.
-"""
-
-__version__ = "0.0.0"
+__version__ = "0.1.0"
