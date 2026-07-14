@@ -50,42 +50,48 @@ def _inject_design_system() -> None:
         """
         <style>
         :root {
-            --ho-bg: #07100e;
-            --ho-panel: rgba(14, 30, 26, .76);
-            --ho-panel-solid: #0d1d19;
-            --ho-line: rgba(181, 255, 221, .14);
-            --ho-line-strong: rgba(181, 255, 221, .28);
-            --ho-text: #effff8;
-            --ho-muted: #91aaa0;
-            --ho-mint: #78f6bd;
-            --ho-mint-soft: #b6ffdd;
-            --ho-cyan: #67dfea;
-            --ho-amber: #ffcf66;
-            --ho-red: #ff806f;
+            --ho-panel-solid: #ffffff;
+            --ho-line: rgba(27, 70, 135, .13);
+            --ho-line-strong: rgba(27, 70, 135, .24);
+            --ho-text: #0c1830;
+            --ho-muted: #617087;
+            --ho-blue: #2368e8;
+            --ho-blue-bright: #4387ff;
+            --ho-green: #20b26b;
+            --ho-amber: #cf8614;
+            --ho-red: #d84d5b;
         }
 
         .stApp {
             background:
-                radial-gradient(circle at 72% 0%, rgba(25, 160, 115, .17), transparent 32rem),
-                radial-gradient(circle at 14% 42%, rgba(45, 107, 95, .11), transparent 28rem),
-                linear-gradient(180deg, #07100e 0%, #081411 55%, #07100e 100%);
+                radial-gradient(circle at 76% 0%, rgba(72, 134, 255, .16), transparent 34rem),
+                radial-gradient(circle at 12% 42%, rgba(153, 191, 255, .12), transparent 27rem),
+                linear-gradient(180deg, #f8faff 0%, #f2f6fc 58%, #edf3fb 100%);
             color: var(--ho-text);
         }
 
         [data-testid="stAppViewContainer"] > .main { background: transparent; }
-        [data-testid="stHeader"] { background: rgba(7, 16, 14, .7); }
+        [data-testid="stHeader"] { background: rgba(248, 250, 255, .78); }
         [data-testid="stToolbar"] { opacity: .55; }
         [data-testid="stMainBlockContainer"] {
-            max-width: 1540px;
+            max-width: 1420px;
             padding: 3.1rem 3.2rem 6rem;
         }
 
         [data-testid="stSidebar"] {
-            background: rgba(8, 23, 19, .94);
-            border-right: 1px solid var(--ho-line);
+            background:
+                radial-gradient(circle at 10% 12%, rgba(62, 127, 245, .24), transparent 15rem),
+                linear-gradient(180deg, #102447 0%, #0b1931 100%);
+            border-right: 1px solid rgba(255, 255, 255, .08);
         }
         [data-testid="stSidebarContent"] { padding: 1.25rem .7rem 2rem; }
-        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { color: var(--ho-muted); }
+        [data-testid="stSidebar"] h3,
+        [data-testid="stSidebar"] strong { color: #f6f9ff; }
+        [data-testid="stSidebar"] .ho-kicker { color: #94baff; }
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { color: #afbdd3; }
+        [data-testid="stSidebar"] hr { border-color: rgba(255, 255, 255, .12); }
 
         h1, h2, h3 { letter-spacing: -.035em; }
         h1 {
@@ -93,7 +99,7 @@ def _inject_design_system() -> None:
             line-height: .9 !important;
             margin: .25rem 0 .65rem !important;
             font-weight: 650 !important;
-            background: linear-gradient(100deg, #f4fff9 25%, #8ef8c5 72%, #67dfea 100%);
+            background: linear-gradient(105deg, #0b1830 22%, #205fcf 68%, #4d8eff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -105,7 +111,7 @@ def _inject_design_system() -> None:
             display: flex;
             align-items: center;
             gap: .55rem;
-            color: var(--ho-mint);
+            color: var(--ho-blue);
             font: 700 .71rem/1.1 ui-monospace, SFMono-Regular, Menlo, monospace;
             letter-spacing: .16em;
             text-transform: uppercase;
@@ -116,13 +122,13 @@ def _inject_design_system() -> None:
             width: .48rem;
             height: .48rem;
             border-radius: 50%;
-            background: var(--ho-mint);
-            box-shadow: 0 0 18px var(--ho-mint);
+            background: var(--ho-green);
+            box-shadow: 0 0 16px rgba(32, 178, 107, .62);
             animation: ho-pulse 2.8s ease-in-out infinite;
         }
         .ho-deck {
             max-width: 820px;
-            color: #c8ddd4;
+            color: #4c5e77;
             font-size: clamp(1.12rem, 2vw, 1.45rem);
             line-height: 1.55;
             margin: 0 0 1.55rem;
@@ -138,25 +144,26 @@ def _inject_design_system() -> None:
             border: 1px solid var(--ho-line-strong);
             border-radius: 999px;
             padding: .52rem .78rem;
-            color: #bcd2c8;
-            background: rgba(13, 31, 26, .65);
+            color: #4e617b;
+            background: rgba(255, 255, 255, .68);
             font: 650 .68rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
             letter-spacing: .06em;
             text-transform: uppercase;
         }
-        .ho-badge--live { color: var(--ho-mint-soft); border-color: rgba(120, 246, 189, .4); }
+        .ho-badge--live { color: #147d4d; border-color: rgba(32, 178, 107, .34); }
         .ho-dot { width: .38rem; height: .38rem; border-radius: 50%; background: currentColor; }
 
         .ho-notice {
             display: flex;
             gap: .8rem;
             align-items: center;
-            border: 1px solid rgba(255, 207, 102, .28);
-            background: rgba(96, 68, 13, .13);
+            border: 1px solid rgba(207, 134, 20, .28);
+            background: rgba(255, 246, 225, .78);
             padding: .9rem 1rem;
-            color: #e8d3a2;
+            color: #76511b;
             font-size: .84rem;
             margin: 1rem 0 2rem;
+            border-radius: 12px;
         }
         .ho-notice b { color: var(--ho-amber); font-family: ui-monospace, monospace; }
 
@@ -172,7 +179,7 @@ def _inject_design_system() -> None:
             letter-spacing: .15em;
             text-transform: uppercase;
         }
-        .ho-section-label span:last-child { color: #547168; }
+        .ho-section-label span:last-child { color: #8a99ae; }
 
         .ho-grid { display: grid; gap: .85rem; }
         .ho-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -181,30 +188,34 @@ def _inject_design_system() -> None:
             position: relative;
             min-height: 150px;
             border: 1px solid var(--ho-line);
-            background: linear-gradient(145deg, rgba(18, 39, 33, .78), rgba(10, 23, 19, .62));
+            background: linear-gradient(145deg, rgba(255, 255, 255, .96), rgba(242, 247, 255, .9));
+            box-shadow: 0 10px 30px rgba(40, 72, 125, .045);
             padding: 1.2rem;
             overflow: hidden;
+            border-radius: 14px;
         }
         .ho-card::after {
             content: "";
             position: absolute;
             inset: auto -25% -80% 20%;
             height: 130px;
-            background: radial-gradient(ellipse, rgba(120, 246, 189, .09), transparent 67%);
+            background: radial-gradient(ellipse, rgba(67, 135, 255, .1), transparent 67%);
             pointer-events: none;
         }
         .ho-card:hover { border-color: var(--ho-line-strong); transform: translateY(-1px); }
-        .ho-card-num { color: var(--ho-mint); font: 700 .67rem/1 ui-monospace, monospace; }
+        .ho-card-num { color: var(--ho-blue); font: 700 .67rem/1 ui-monospace, monospace; }
         .ho-card h3 { color: var(--ho-text); margin: 1.2rem 0 .5rem; }
         .ho-card p { color: var(--ho-muted); font-size: .82rem; line-height: 1.5; margin: 0; }
 
         .ho-hero-panel {
             border: 1px solid var(--ho-line);
             background:
-                linear-gradient(115deg, rgba(20, 51, 41, .72), rgba(9, 22, 18, .8)),
-                repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(120,246,189,.04) 50px);
+                linear-gradient(115deg, rgba(255, 255, 255, .98), rgba(232, 241, 255, .9)),
+                repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(35,104,232,.04) 50px);
+            box-shadow: 0 18px 52px rgba(36, 88, 168, .08);
             padding: clamp(1.3rem, 3vw, 2.25rem);
             margin: 1.25rem 0 1rem;
+            border-radius: 18px;
         }
         .ho-hero-top { display: flex; justify-content: space-between; gap: 1rem; align-items: start; }
         .ho-result {
@@ -214,35 +225,37 @@ def _inject_design_system() -> None:
             letter-spacing: -.06em;
             margin: .65rem 0 1rem;
         }
-        .ho-result--allow { color: var(--ho-mint-soft); }
-        .ho-result--deny { color: #ffb5a8; }
+        .ho-result--allow { color: #158456; }
+        .ho-result--deny { color: var(--ho-red); }
         .ho-caption { color: var(--ho-muted); font-size: .8rem; line-height: 1.5; }
 
         .ho-pipeline { display: grid; grid-template-columns: repeat(6, 1fr); margin: 1.25rem 0 2rem; }
         .ho-stage { position: relative; border-top: 1px solid var(--ho-line-strong); padding: .85rem .55rem 0 0; }
         .ho-stage::before {
             content: ""; position: absolute; width: .5rem; height: .5rem; border-radius: 50%;
-            top: -.28rem; left: 0; background: var(--ho-mint); box-shadow: 0 0 12px rgba(120,246,189,.7);
+            top: -.28rem; left: 0; background: var(--ho-green); box-shadow: 0 0 12px rgba(32,178,107,.5);
         }
-        .ho-stage small { display: block; color: #547168; font: 700 .62rem/1 ui-monospace, monospace; }
-        .ho-stage b { display: block; color: #cfe3da; margin-top: .45rem; font-size: .75rem; }
+        .ho-stage small { display: block; color: #8798b0; font: 700 .62rem/1 ui-monospace, monospace; }
+        .ho-stage b { display: block; color: #30445f; margin-top: .45rem; font-size: .75rem; }
 
         .ho-memory {
-            border: 1px solid rgba(103, 223, 234, .22);
-            background: rgba(13, 39, 39, .46);
+            border: 1px solid rgba(35, 104, 232, .18);
+            background: rgba(255, 255, 255, .78);
             padding: 1rem;
             margin-bottom: .7rem;
+            border-radius: 12px;
         }
         .ho-memory-head { display: flex; justify-content: space-between; gap: 1rem; }
-        .ho-memory-source { color: var(--ho-cyan); font: 700 .67rem/1 ui-monospace, monospace; }
-        .ho-memory-score { color: #789a91; font: 600 .66rem/1 ui-monospace, monospace; }
-        .ho-memory p { color: #c2d7cf; font-size: .86rem; line-height: 1.5; margin: .8rem 0 0; }
+        .ho-memory-source { color: var(--ho-blue); font: 700 .67rem/1 ui-monospace, monospace; }
+        .ho-memory-score { color: #7a8ba4; font: 600 .66rem/1 ui-monospace, monospace; }
+        .ho-memory p { color: #42546d; font-size: .86rem; line-height: 1.5; margin: .8rem 0 0; }
 
         .ho-action {
-            border-left: 2px solid var(--ho-mint);
-            background: rgba(13, 30, 25, .68);
+            border-left: 2px solid var(--ho-blue);
+            background: rgba(255, 255, 255, .74);
             padding: .85rem 1rem;
             margin-bottom: .55rem;
+            border-radius: 0 10px 10px 0;
         }
         .ho-action--denied { border-left-color: var(--ho-red); }
         .ho-action b { color: var(--ho-text); font-size: .85rem; }
@@ -257,26 +270,50 @@ def _inject_design_system() -> None:
         [data-testid="stMetricValue"] { color: var(--ho-text); letter-spacing: -.045em; }
         [data-baseweb="tab-list"] { gap: .2rem; border-bottom: 1px solid var(--ho-line); }
         [data-baseweb="tab"] { color: var(--ho-muted); font-size: .76rem; letter-spacing: .02em; }
-        [aria-selected="true"] { color: var(--ho-mint) !important; }
-        [data-testid="stDataFrame"] { border: 1px solid var(--ho-line); }
-        [data-testid="stExpander"] { border: 1px solid var(--ho-line); background: rgba(12, 27, 23, .48); }
+        [aria-selected="true"] { color: var(--ho-blue) !important; }
+        [data-testid="stDataFrame"] { border: 1px solid var(--ho-line); border-radius: 12px; overflow: hidden; }
+        [data-testid="stExpander"] {
+            border: 1px solid var(--ho-line); background: rgba(255, 255, 255, .72); border-radius: 12px;
+        }
 
         .stButton > button {
-            border-radius: 0;
+            border-radius: 10px;
             min-height: 2.8rem;
             border: 1px solid var(--ho-line-strong);
-            background: rgba(15, 36, 30, .8);
+            background: rgba(255, 255, 255, .08);
             color: var(--ho-text);
             font-weight: 650;
         }
         .stButton > button[kind="primary"] {
-            background: var(--ho-mint);
-            border-color: var(--ho-mint);
-            color: #04120d;
+            background: var(--ho-blue);
+            border-color: var(--ho-blue);
+            color: #ffffff;
         }
-        .stButton > button:hover { border-color: var(--ho-mint); color: var(--ho-mint-soft); }
-        .stButton > button[kind="primary"]:hover { background: var(--ho-mint-soft); color: #04120d; }
-        [data-baseweb="select"] > div { background: rgba(9, 24, 20, .85); border-color: var(--ho-line); }
+        .stButton > button:hover { border-color: var(--ho-blue-bright); color: var(--ho-blue); }
+        .stButton > button[kind="primary"]:hover { background: #1757c8; color: #ffffff; }
+        [data-baseweb="select"] > div { background: var(--ho-panel-solid); border-color: var(--ho-line); }
+
+        [data-testid="stSidebar"] .stButton > button { color: #dbe7f9; border-color: rgba(255,255,255,.18); }
+        [data-testid="stSidebar"] .stButton > button[kind="primary"] {
+            color: #ffffff; background: var(--ho-blue-bright); border-color: var(--ho-blue-bright);
+        }
+        [data-testid="stSidebar"] [data-baseweb="select"] > div {
+            color: #f7faff; background: rgba(5, 14, 29, .42); border-color: rgba(255,255,255,.14);
+        }
+        [data-testid="stSidebar"] svg { fill: #b7c5d9; }
+
+        .ho-provider-list { display: grid; gap: .62rem; margin: .85rem 0 1rem; }
+        .ho-provider { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+        .ho-provider-name { color: #b9c7da; font-size: .79rem; }
+        .ho-provider-state {
+            display: inline-flex; align-items: center; gap: .42rem; color: #8090a8;
+            font: 700 .62rem/1 ui-monospace, monospace; letter-spacing: .06em; text-transform: uppercase;
+        }
+        .ho-provider-dot { width: .42rem; height: .42rem; border-radius: 50%; background: #687994; }
+        .ho-provider--active .ho-provider-state { color: #77e5ae; }
+        .ho-provider--active .ho-provider-dot {
+            background: var(--ho-green); box-shadow: 0 0 10px rgba(32,178,107,.75);
+        }
 
         @keyframes ho-pulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
         @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
@@ -345,10 +382,22 @@ def _render_sidebar(session: DemoSession) -> tuple[str, DemoMode]:
     st.sidebar.caption(by_id[scenario_id].description)
     st.sidebar.markdown("---")
     st.sidebar.markdown("**Provider fabric**")
+    gemini_class = " ho-provider--active" if settings.gemini_available else ""
+    memory_class = " ho-provider--active" if settings.supermemory_available else ""
+    gemini_state = "Ready" if settings.gemini_available else "Offline"
+    memory_state = "Read only" if settings.supermemory_available else "Offline"
     st.sidebar.markdown(
-        f"Gemini &nbsp; `{'READY' if settings.gemini_available else 'OFFLINE'}`  \n"
-        f"Supermemory &nbsp; `{'READ ONLY' if settings.supermemory_available else 'OFFLINE'}`  \n"
-        "Synthetic context &nbsp; `READY`"
+        f"""
+        <div class="ho-provider-list">
+          <div class="ho-provider{gemini_class}"><span class="ho-provider-name">Gemini</span>
+          <span class="ho-provider-state"><i class="ho-provider-dot"></i>{gemini_state}</span></div>
+          <div class="ho-provider{memory_class}"><span class="ho-provider-name">Supermemory</span>
+          <span class="ho-provider-state"><i class="ho-provider-dot"></i>{memory_state}</span></div>
+          <div class="ho-provider ho-provider--active"><span class="ho-provider-name">Synthetic context</span>
+          <span class="ho-provider-state"><i class="ho-provider-dot"></i>Ready</span></div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
     st.sidebar.caption("No credential values or raw provider responses enter the browser surface.")
 
