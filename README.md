@@ -5,7 +5,7 @@
 <p align="center"><strong>A local-first, vendor-independent runtime for turning human goals into policy-checked actions and verified real-world outcomes.</strong></p>
 
 <p align="center">
-  <img alt="Project status: Milestone 3" src="https://img.shields.io/badge/status-Milestone%203-1f6feb">
+  <img alt="Project status: Milestone 4 complete" src="https://img.shields.io/badge/status-Milestone%204%20complete-1f6feb">
   <img alt="Python 3.12" src="https://img.shields.io/badge/python-3.12-3776AB?logo=python&amp;logoColor=white">
   <img alt="Dependencies locked with uv" src="https://img.shields.io/badge/dependencies-uv%20locked-6f42c1">
   <img alt="Actuation: none" src="https://img.shields.io/badge/real%20actuation-none-d73a49">
@@ -15,7 +15,7 @@
 <p align="center"><em>Internal prototype description: Physical Codex</em></p>
 
 > [!IMPORTANT]
-> Handsoff is currently at **Milestone 3: deterministic runtime and contained planning**. The complete simulation core, all six reference scenarios, append-only evidence, deterministic fallback, minimized Gemini structured planning, and model evaluation exist. The Streamlit operator interface and optional Supermemory provider adapter are Milestone 4. This repository does not control real devices.
+> Handsoff has completed **Milestone 4: the hackathon application**. The repository contains the deterministic simulation core, six reference scenarios, append-only evidence, contained Gemini planning with offline fallback, bounded read-only Supermemory context, and an inspectable Streamlit operator surface. This repository does not control real devices.
 
 ## The idea
 
@@ -160,13 +160,13 @@ All six named fixtures are committed, schema-validated, executed through the det
 | Operational ledger | Implemented | Ordered append-only in-memory and transactional SQLite repositories |
 | Gemini planner adapter | Implemented and optional | Minimized prompt, Pydantic structured output, trusted binding checks, no tools, deterministic fallback |
 | Planner evaluation | Implemented | Configuration, schema validity, hallucinations, parameters, preconditions, policy result, latency, and token usage |
-| Memory boundary | Implemented without provider | Context-only port and no-op adapter preserve provider-disabled behavior |
-| Operator interface | Not implemented | Streamlit operator surface is the remaining Milestone 4 work |
-| Supermemory demonstration | Designed, not implemented | Milestone 4 uses bounded read-only context outside authority, execution, and verification |
+| Memory boundary | Implemented and optional | Context-only port, no-op adapter, read-only Supermemory search, fixed scope, five-result limit, normalization, and fail-closed fallback |
+| Operator interface | Implemented | Streamlit exposes scenario selection, provider mode, world evidence, proposal, policy, transitions, verification, ledger, and memory trust boundary |
+| Supermemory demonstration | Implemented and optional | Hybrid retrieval supplies bounded untrusted planner context; no writes or authority path exist |
 | Home Assistant integration | Post-hackathon | Not part of the M4 completion line |
 | Real device actuation | Prohibited | No real actuation in the prototype |
 
-The package version is `0.3.0`. The deterministic demo and planner-evaluation runners are supported engineering workflows; the public operator application arrives in Milestone 4.
+The package version is `0.4.0`. The deterministic CLI, planner-evaluation runner, and Streamlit operator application are supported hackathon workflows.
 
 ## Autonomy modes
 
@@ -181,7 +181,7 @@ No mode performs real actuation. Shadow, supervised, and live-bounded modes rema
 
 ## Repository structure
 
-The repository now contains the complete non-UI hackathon core:
+The repository now contains the complete hackathon application:
 
 ```text
 handsoff/
@@ -191,6 +191,9 @@ handsoff/
 ├── uv.lock                         # Exact dependency resolution
 ├── .python-version                 # Python 3.12 baseline
 ├── .env.example                    # Empty configuration placeholders only
+├── streamlit_app.py                # Public operator entrypoint
+├── requirements.txt                # Community Cloud project extras
+├── .streamlit/config.toml          # Non-secret presentation configuration
 ├── docs/
 │   ├── product-charter.md
 │   ├── architecture.md
@@ -214,7 +217,7 @@ handsoff/
 │   ├── adapters/
 │   │   ├── clock/                  # Deterministic test time
 │   │   ├── devices/simulator/      # Scripted effects; no real devices
-│   │   ├── memory/                 # Provider-disabled no-op adapter
+│   │   ├── memory/                 # No-op, Supermemory, and fail-closed adapters
 │   │   ├── persistence/            # In-memory and SQLite ledgers
 │   │   └── planner/                # Fixture, Gemini, and fallback planners
 │   ├── application/                # Policy, execution, verification, scenarios
@@ -229,6 +232,7 @@ handsoff/
 │   │   ├── policies.py
 │   │   └── scenarios.py
 │   ├── ports/                      # Planner, memory, adapter, ledger, and clock
+│   ├── presentation/               # Typed facade, configuration, and session state
 │   ├── __init__.py
 │   └── py.typed
 ├── scenarios/
@@ -248,7 +252,7 @@ handsoff/
     └── test_foundation.py
 ```
 
-The deferred Streamlit entrypoint and presentation package are specified in the [deployment plan](docs/streamlit-deployment.md).
+The Streamlit composition and deployment boundary are specified in the [deployment guide](docs/streamlit-deployment.md).
 
 ## Getting started
 
@@ -293,8 +297,26 @@ uv run --frozen python scripts/evaluate_planner.py
 
 This emits JSON Lines evaluation records for the deterministic baseline. Live Gemini evaluation is intentionally opt-in and is never part of repository validation.
 
-> [!NOTE]
-> The Streamlit application does not exist yet. Milestone 4 will expose these same application services without moving policy or execution logic into the UI.
+### Run the Streamlit application
+
+Install the application and optional Gemini extra, then launch the operator surface:
+
+```bash
+uv sync --frozen --all-extras
+uv run --frozen --all-extras streamlit run streamlit_app.py
+```
+
+Open the local URL printed by Streamlit. Deterministic mode requires no credential and performs no network call. Select any committed scenario, choose a planner mode, and inspect the world evidence, typed proposal, policy reasons, state transitions, outcome verification, ordered ledger, and memory trust boundary.
+
+Optional local provider configuration belongs in ignored `.streamlit/secrets.toml`:
+
+```toml
+GOOGLE_API_KEY = ""
+SUPERMEMORY_API_KEY = ""
+HANDSOFF_MEMORY_SCOPE = "handsoff-public-demo-v1"
+```
+
+Never commit that file. The browser cannot choose provider endpoints, model identifiers, or Supermemory container tags. Missing or invalid providers fall back visibly to deterministic planning or empty memory context without weakening policy.
 
 ## Validation
 
@@ -310,7 +332,7 @@ The aggregate command stops at the first failure and executes:
 |---|---|---|
 | Format | `ruff format --check .` | Python formatting matches the repository configuration |
 | Lint | `ruff check .` | Configured Ruff rules pass |
-| Static typing | `mypy src scripts tests` | Strict Python 3.12 analysis passes |
+| Static typing | `mypy src scripts tests streamlit_app.py` | Strict Python 3.12 analysis passes |
 | Tests | `coverage run -m pytest` | The current test suite passes under strict pytest settings |
 | Coverage | `coverage report` | Package branch coverage meets the configured threshold |
 | Lock consistency | `uv lock --check` | `pyproject.toml` and `uv.lock` agree |
@@ -336,14 +358,14 @@ The deterministic core must remain installable and testable without Gemini, Supe
 ### Optional integration boundary
 
 - `google-genai` is isolated in the `planner-gemini` extra. The adapter is implemented but never enabled implicitly.
-- Streamlit and Supermemory dependencies will be selected and locked with their Milestone 4 implementations.
+- `streamlit==1.59.2` is pinned in the `app` extra. The Supermemory adapter uses the existing `httpx` boundary and adds no provider SDK to the deterministic core.
 - No Home Assistant dependency has been selected.
 
 ## Streamlit and Supermemory path
 
-Milestone 4 is a single-process Streamlit application over the existing typed application services. It will support three visible modes: deterministic baseline, optional Gemini planning, and optional read-only Supermemory context comparison. The core remains complete when both providers are disabled.
+Milestone 4 is a single-process Streamlit application over typed application services. It supports three visible modes: deterministic baseline, optional Gemini planning, and optional Gemini plus read-only Supermemory context. The core remains complete when both providers are disabled.
 
-The public demo will use one fixed server-configured, demo-only Supermemory scope; retrieve at most five hybrid-search results; normalize and truncate each result; label it untrusted; and pass it only to planner context. Browser users cannot select container tags or write shared memory. Provider keys remain in Streamlit Community Cloud secrets, never in Git or session output.
+The public demo uses one fixed server-configured, demo-only Supermemory scope; retrieves at most five hybrid-search results; normalizes and truncates each result; labels it untrusted; and passes it only to planner context. Browser users cannot select container tags or write shared memory. Provider keys remain in Streamlit Community Cloud secrets, never in Git or session output.
 
 The full process, session-isolation requirements, secret placeholders, packaging plan, and acceptance criteria are in [Streamlit and Supermemory deployment](docs/streamlit-deployment.md).
 
@@ -359,9 +381,9 @@ The prototype core does not use LangChain, a general agent framework, Celery, Re
 | **M1 — Contracts and deterministic tests** | Domain vocabulary, strict schemas, test clock, scenario schema, six fixtures, and fail-first invariant tests | **Complete** |
 | **M2 — Deterministic runtime** | World model, capability registry, policy kernel, state machine, verifier, ledger, simulator, and executable scenarios | **Complete** |
 | **M3 — Contained planner** | Minimized Gemini structured output, trusted binding checks, deterministic fallback, optional memory port, and model evaluation | **Complete** |
-| **M4 — Hackathon application** | Streamlit world/plan/policy/approval/timeline/replay UI plus optional read-only Supermemory context comparison | Remaining |
+| **M4 — Hackathon application** | Streamlit world/plan/policy/approval/timeline/replay UI plus optional read-only Supermemory context comparison | **Complete** |
 
-Milestone 4 is the hackathon completion line. Home Assistant shadow integration, live telemetry, and any real-device work are post-hackathon extensions rather than additional committed milestones.
+Milestone 4 is the completed hackathon line. There are no additional committed milestones. Home Assistant shadow integration, live telemetry, and any real-device work are optional post-hackathon extensions requiring separate architecture and security approval.
 
 ## Engineering documentation
 

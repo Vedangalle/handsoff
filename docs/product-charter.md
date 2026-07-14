@@ -61,4 +61,4 @@ These behaviors are measured against committed synthetic fixtures. They are not 
 
 ## Current status
 
-Milestones 2 and 3 establish the deterministic runtime, six reproducible scenarios, append-only evidence, contained Gemini structured planning, deterministic fallback, and model evaluation. Milestone 4 is the remaining hackathon milestone: a Streamlit operator interface with optional read-only Supermemory context comparison. The prototype still has no real-device integration or actuation.
+Milestone 4 completes the hackathon application: deterministic runtime, six reproducible scenarios, append-only evidence, contained Gemini structured planning, deterministic fallback, model evaluation, a Streamlit operator interface, and optional read-only Supermemory context. There are no further committed milestones. The prototype still has no real-device integration or actuation.

@@ -33,7 +33,7 @@ This is a modular monolith, not a distributed system, general robotics platform,
 
 ```mermaid
 flowchart LR
-    U["User objective"] --> UI["Future Streamlit interface"]
+    U["User objective"] --> UI["Streamlit interface"]
     UI --> GC["Typed goal compiler"]
     WS["Timestamped world state"] --> GC
     CR["Capability registry"] --> GC
@@ -114,7 +114,7 @@ Mode is explicit configuration included in every trace. It is never inferred fro
 
 ## Target repository structure
 
-The repository is incremental. Milestones 0–1 established the foundation and contracts. Milestone 2 implemented the deterministic runtime and Milestone 3 added contained planning adapters and evaluation. Only the Streamlit presentation surface remains for the hackathon.
+Milestones 0–1 established the foundation and contracts, Milestone 2 implemented the deterministic runtime, Milestone 3 added contained planning and evaluation, and Milestone 4 completed the Streamlit and Supermemory hackathon surface.
 
 ```text
 handsoff/
@@ -151,18 +151,20 @@ handsoff/
 │   │   ├── persistence/
 │   │   ├── memory/
 │   │   └── clock/
-│   └── presentation/              # Milestone 4 only
-├── streamlit_app.py               # Milestone 4 only
+│   └── presentation/              # Typed UI facade and session state
+├── streamlit_app.py               # Streamlit entrypoint
+├── requirements.txt               # Community Cloud project extras
+├── .streamlit/config.toml          # Non-secret deployment configuration
 ├── scenarios/
 ├── tests/
 └── scripts/
 ```
 
-The proposal included a `LICENSE` path. It is intentionally absent until Vedang selects a license. The Streamlit entrypoint, presentation package, and deployment requirements remain deferred to Milestone 4.
+The proposal included a `LICENSE` path. It is intentionally absent until Vedang selects a license. The completed hackathon application introduces no license metadata.
 
 ## Dependency boundaries
 
-The deterministic runtime uses `pydantic`, `sqlalchemy`, `alembic`, `httpx`, and `pyyaml`. `google-genai` is isolated in the optional `planner-gemini` extra. Streamlit and Supermemory dependencies remain unselected until their Milestone 4 adapters are implemented and locked. FastAPI and Uvicorn were removed after ADR 0004 eliminated the unused hackathon API process.
+The deterministic runtime uses `pydantic`, `sqlalchemy`, `alembic`, `httpx`, and `pyyaml`. `google-genai` is isolated in the optional `planner-gemini` extra and Streamlit 1.59.2 is pinned in the `app` extra. The Supermemory adapter uses the existing HTTPX transport boundary rather than introducing its SDK into the core. FastAPI was removed after ADR 0004 eliminated the unused hackathon API process; Uvicorn may appear only as a transitive Streamlit dependency.
 
 No agent framework, message broker, container orchestrator, vector database, embedded policy DSL, or direct Matter implementation belongs in the prototype core.
 
@@ -178,13 +180,15 @@ No agent framework, message broker, container orchestrator, vector database, emb
 
 ## Current implementation boundary
 
-Milestone 3 completes the non-UI hackathon core:
+Milestone 4 completes the hackathon application:
 
 - strict immutable contracts and provider-independent ports;
 - normalized world state, capability registry, deterministic condition and policy evaluation, approval binding, execution state machine, independent verifier, duplicate suppression, bounded retries, and append-only in-memory/SQLite ledgers;
 - a deterministic fixture planner and scripted simulator that reproduce all six reference scenarios without credentials or network access;
 - a Gemini adapter using minimized JSON context and Pydantic structured output, with no tools or actuator access;
 - deterministic fallback and model-evaluation records for schema validity, hallucinated capabilities, invalid parameters, missing preconditions, policy result, latency, and token usage; and
-- a context-only memory port plus no-op adapter so the core remains complete without Supermemory.
+- a context-only memory port plus no-op adapter so the core remains complete without Supermemory;
+- fixed-scope read-only Supermemory hybrid search with bounded normalized output and empty-context fallback; and
+- per-browser Streamlit session state over a typed facade, with all six fixtures and every evidence layer visible.
 
-No Streamlit application, Supermemory provider adapter, Home Assistant integration, shadow state, live device actuation, or real household data exists. Milestone 4 adds only the hackathon presentation and optional read-only Supermemory context demonstration described in [the deployment plan](streamlit-deployment.md).
+No Home Assistant integration, shadow-state ingestion, live device actuation, public memory writes, or real household data exists. Any such work is post-hackathon and requires a separately approved architecture and security review. The completed presentation and optional read-only memory design are documented in [the deployment guide](streamlit-deployment.md).

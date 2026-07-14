@@ -1,4 +1,4 @@
-"""Validate Milestone 3 repository invariants without reading credential files."""
+"""Validate Milestone 4 repository invariants without reading credential files."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPECTED_VERSION = "0.3.0"
+EXPECTED_VERSION = "0.4.0"
 REQUIRED_FILES = (
     "AGENTS.md",
     "README.md",
@@ -17,6 +17,9 @@ REQUIRED_FILES = (
     ".python-version",
     ".env.example",
     ".gitignore",
+    "streamlit_app.py",
+    "requirements.txt",
+    ".streamlit/config.toml",
     "src/handsoff/__init__.py",
     "src/handsoff/py.typed",
     "src/handsoff/domain/__init__.py",
@@ -52,6 +55,12 @@ REQUIRED_FILES = (
     "src/handsoff/adapters/persistence/memory.py",
     "src/handsoff/adapters/persistence/sqlite/ledger.py",
     "src/handsoff/adapters/memory/noop.py",
+    "src/handsoff/adapters/memory/fallback.py",
+    "src/handsoff/adapters/memory/supermemory.py",
+    "src/handsoff/presentation/__init__.py",
+    "src/handsoff/presentation/config.py",
+    "src/handsoff/presentation/facade.py",
+    "src/handsoff/presentation/session.py",
     "scenarios/nominal_arrival.yaml",
     "scenarios/false_proximity.yaml",
     "scenarios/blocked_garage.yaml",
@@ -62,8 +71,11 @@ REQUIRED_FILES = (
     "tests/contract/test_reference_scenarios.py",
     "tests/property/test_contract_properties.py",
     "tests/integration/test_runtime.py",
+    "tests/integration/test_streamlit_app.py",
     "tests/scenarios/test_reference_runtime.py",
     "tests/unit/adapters/test_deterministic_clock.py",
+    "tests/unit/adapters/test_supermemory.py",
+    "tests/unit/presentation/test_facade.py",
     "tests/unit/domain/test_capabilities.py",
     "tests/unit/domain/test_events.py",
     "tests/unit/domain/test_execution.py",
@@ -81,14 +93,10 @@ REQUIRED_FILES = (
     "docs/streamlit-deployment.md",
     "docs/adr/0004-streamlit-hackathon-interface.md",
 )
-DEFERRED_MILESTONE_4_PATHS = (
-    "streamlit_app.py",
-    "src/handsoff/presentation",
+FORBIDDEN_POST_HACKATHON_PATHS = (
     "src/handsoff/api",
-    "src/handsoff/config.py",
+    "src/handsoff/adapters/home_assistant",
     "web",
-    ".streamlit/config.toml",
-    "requirements.txt",
 )
 IGNORED_SENSITIVE_PATHS = (
     ".env",
@@ -138,15 +146,29 @@ def validate_sensitive_ignores(errors: list[str]) -> None:
 
 
 def validate_project_version(errors: list[str]) -> None:
-    """Require package metadata to identify the completed planner milestone."""
+    """Require package metadata to identify the completed hackathon milestone."""
     with (ROOT / "pyproject.toml").open("rb") as project_file:
         project = tomllib.load(project_file)
     if project.get("project", {}).get("version") != EXPECTED_VERSION:
-        errors.append(f"project version must be {EXPECTED_VERSION} for Milestone 3")
+        errors.append(f"project version must be {EXPECTED_VERSION} for Milestone 4")
+    optional = project.get("project", {}).get("optional-dependencies", {})
+    if optional.get("app") != ["streamlit==1.59.2"]:
+        errors.append("Streamlit must remain pinned in the app optional dependency")
+
+
+def validate_deployment_files(errors: list[str]) -> None:
+    """Require reviewable non-secret Streamlit Community Cloud configuration."""
+    requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8").splitlines()
+    entries = [line.strip() for line in requirements if line.strip() and not line.startswith("#")]
+    if entries != [".[app,planner-gemini]"]:
+        errors.append("requirements.txt must install only the reviewed project extras")
+    config = (ROOT / ".streamlit/config.toml").read_text(encoding="utf-8").lower()
+    if any(term in config for term in ("api_key", "token", "password", "secret")):
+        errors.append(".streamlit/config.toml contains a credential-like field")
 
 
 def main() -> int:
-    """Run Milestone 3 structural checks."""
+    """Run Milestone 4 structural checks."""
     errors: list[str] = []
 
     errors.extend(
@@ -159,8 +181,8 @@ def main() -> int:
         errors.append("LICENSE exists even though the license decision is pending")
 
     errors.extend(
-        f"Milestone 4 interface path exists early: {relative_path}"
-        for relative_path in DEFERRED_MILESTONE_4_PATHS
+        f"post-hackathon path exists early: {relative_path}"
+        for relative_path in FORBIDDEN_POST_HACKATHON_PATHS
         if (ROOT / relative_path).exists()
     )
 
@@ -174,6 +196,7 @@ def main() -> int:
         errors.append("repository branch is not main")
 
     validate_project_version(errors)
+    validate_deployment_files(errors)
     validate_placeholder_environment(errors)
     validate_sensitive_ignores(errors)
 
@@ -182,7 +205,7 @@ def main() -> int:
             print(f"ERROR: {error}")
         return 1
 
-    print("Repository validation passed (Milestone 3 boundaries preserved).")
+    print("Repository validation passed (Milestone 4 boundaries preserved).")
     return 0
 
 

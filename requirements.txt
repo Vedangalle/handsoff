@@ -1,0 +1,2 @@
+# Streamlit Community Cloud deployment root. Versions resolve from project metadata.
+.[app,planner-gemini]

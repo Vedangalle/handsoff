@@ -1,8 +1,8 @@
-# Streamlit and Supermemory Deployment Plan
+# Streamlit and Supermemory Deployment
 
 ## Status
 
-This is the approved Milestone 4 deployment design, not a claim that a Streamlit application already exists. Milestone 3 supplies the deterministic runtime, planner boundary, no-op memory adapter, and context-only memory port. Milestone 4 will add the presentation layer and Supermemory retrieval adapter.
+Milestone 4 is implemented. `streamlit_app.py` is the public entrypoint; `handsoff.presentation` owns server configuration, the typed facade, and browser-session state; and the Supermemory adapter provides optional bounded read-only context. No presentation or provider component can authorize or dispatch an action.
 
 ## Deployment shape
 
@@ -35,7 +35,7 @@ The interface must make the active mode and every external-provider boundary vis
 
 ## Supermemory retrieval contract
 
-Milestone 4 will implement `MemoryProvider.retrieve()` using Supermemory semantic search:
+`SupermemoryMemoryProvider` implements `MemoryProvider.retrieve()` using Supermemory semantic search:
 
 - query: the current synthetic goal objective;
 - container: a server-configured demo-only scope, never a browser-supplied tag;
@@ -45,11 +45,11 @@ Milestone 4 will implement `MemoryProvider.retrieve()` using Supermemory semanti
 - writes: disabled in the public hackathon deployment; and
 - destination: `PlannerRequest.preference_context` only.
 
-Retrieved content is normalized, truncated to 500 characters per item, explicitly labeled untrusted, and excluded from policy inputs, approvals, execution, verification, and authoritative ledger state. Supermemory's current API documents hybrid search with `containerTag` scoping and a bounded result limit in its [official search reference](https://supermemory.ai/docs/search).
+Retrieved content is normalized, truncated to 500 characters per item, explicitly labeled untrusted, and excluded from policy inputs, approvals, execution, verification, and authoritative ledger state. Supermemory's current API documents hybrid search with `containerTag` scoping and a bounded result limit in its [official search reference](https://supermemory.ai/docs/api-reference/recall-search/search-memory-entries).
 
 ## Public-demo isolation
 
-Streamlit reruns application code and may serve multiple users from one process. Milestone 4 must therefore:
+Streamlit reruns application code and may serve multiple users from one process. The implementation therefore:
 
 1. create runtime state per browser session;
 2. avoid process-global mutable worlds, approvals, or ledgers;
@@ -77,17 +77,17 @@ The application will read values only inside the configuration/presentation boun
 
 ## Community Cloud packaging
 
-Milestone 4 will add:
+Milestone 4 includes:
 
 - `streamlit_app.py` as the repository entrypoint;
-- a pinned Streamlit optional dependency;
-- a generated, reviewable `requirements.txt` because Community Cloud recommends a pip requirements file at the repository root or beside the entrypoint;
+- a Streamlit 1.59.2 pin in the `app` optional dependency;
+- a reviewable `requirements.txt` that installs the `app` and `planner-gemini` project extras;
 - `.streamlit/config.toml` containing non-secret visual/server configuration; and
 - tests that import and smoke-test the application with providers disabled.
 
 Deployment selects `main`, `streamlit_app.py`, and Python 3.12. Provider values are entered only in Advanced settings. Streamlit documents the [dependency-file requirement](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/app-dependencies) and [Python/secrets deployment controls](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy).
 
-## Milestone 4 acceptance
+## Milestone 4 acceptance evidence
 
 - All six scenarios are selectable and replayable.
 - World state, proposal, policy reasons, approval boundary, action transitions, verification evidence, and ledger sequence are visible.
@@ -97,3 +97,25 @@ Deployment selects `main`, `streamlit_app.py`, and Python 3.12. Provider values 
 - A malicious memory string cannot introduce an undeclared capability or affect authority.
 - Session reset is deterministic.
 - No credential or real household data appears in source, logs, screenshots, traces, or provider prompts.
+
+The automated suite exercises all six scenario selections, provider-disabled startup, Gemini fallback, fixed scope and result limits, malformed Supermemory responses, malicious memory content, deterministic reset/replay, independent session objects, visible evidence surfaces, and native Streamlit interaction through `streamlit.testing.v1.AppTest`. Live provider calls are intentionally excluded from repository validation because validation never reads real credentials.
+
+## Local operation
+
+```bash
+uv sync --frozen --all-extras
+uv run --frozen --all-extras streamlit run streamlit_app.py
+```
+
+The deterministic baseline is complete without `.streamlit/secrets.toml`. For optional providers, create that ignored file locally using the empty names in `.env.example`, or configure those names in Streamlit Community Cloud Advanced settings. Values are passed directly to adapter constructors and never rendered.
+
+## Deployment procedure
+
+1. Select repository `Vedangalle/handsoff`, branch `main`, and entrypoint `streamlit_app.py`.
+2. Select Python 3.12.
+3. Deploy deterministic mode without secrets first and run every reference scenario.
+4. Add optional provider values only in Advanced settings.
+5. Verify Gemini failure shows deterministic fallback and Supermemory failure shows empty-context fallback.
+6. Confirm no provider value, raw prompt, or raw response appears in UI output or logs.
+
+Community Cloud is a public demonstration host, not a durable system of record. Every run reconstructs an in-memory simulator and ledger; browser sessions retain only their own last typed result.

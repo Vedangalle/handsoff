@@ -4,7 +4,7 @@
 
 Handsoff may eventually process location, occupancy, routines, schedules, device state, media context, energy use, goals, approvals, and action history. These data can reveal sensitive household behavior even when no field is labeled personal information.
 
-Milestone 3 processes only synthetic, simulation-labeled fixtures. The deterministic path contacts no provider. The optional Gemini adapter exists but is not invoked by validation and receives only minimized planner context when explicitly configured. No real household data is accepted.
+Milestone 4 processes only synthetic, simulation-labeled fixtures. The deterministic path contacts no provider. Gemini and read-only Supermemory are explicit optional modes and are never invoked by validation with real credentials. No real household data is accepted.
 
 ## Data zones
 
@@ -46,7 +46,7 @@ Before the Supermemory adapter or any non-simulated data path is implemented, it
 - redaction and minimization steps; and
 - observable evidence that the deterministic core still functions when disabled.
 
-The Gemini prompt builder already excludes adapter IDs, source-adapter IDs, correlation IDs, credentials, prohibited capabilities, and capabilities unavailable in the active mode. Optional memory text is normalized, bounded, and labeled as untrusted external context. The [Streamlit deployment plan](streamlit-deployment.md) defines a fixed demo-only, read-only Supermemory scope for Milestone 4.
+The Gemini prompt builder excludes adapter IDs, source-adapter IDs, correlation IDs, credentials, prohibited capabilities, and capabilities unavailable in the active mode. Supermemory uses one server-bound demo scope, hybrid read-only search, a five-result maximum, and 500-character normalized items. Optional memory text is labeled as untrusted external context and never enters policy, approval, execution, verification, or authoritative ledger state. See the [Streamlit deployment guide](streamlit-deployment.md).
 
 ## Residual privacy risk
 

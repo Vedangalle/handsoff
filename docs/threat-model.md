@@ -2,7 +2,7 @@
 
 ## Scope and status
 
-This threat model covers the approved prototype architecture. Milestone 3 implements deterministic simulation controls, negative runtime tests, prompt minimization, provider fallback, and append-only evidence. The prototype is not approved for consequential hardware or real actuation.
+This threat model covers the approved prototype architecture through Milestone 4. The implementation includes deterministic simulation controls, negative runtime tests, prompt minimization, provider fallback, fixed-scope read-only memory, per-browser session state, and append-only evidence. The prototype is not approved for consequential hardware or real actuation.
 
 ## Protected assets
 
@@ -36,6 +36,8 @@ This threat model covers the approved prototype architecture. Milestone 3 implem
 | Executor to adapter | Duplicate or over-broad actuation | Bounded contract, least authority, timeout, retry limit, and revocation |
 | Adapter response to verifier | API success represented as physical success | Require independent post-action observation and acceptance conditions |
 | Local core to provider | Disclosure of credentials or household context | Minimize and redact; never send credentials |
+| Browser to public demo | Cross-session state or browser-controlled provider scope | Session-owned facade and ledger; fixed server-side model, endpoint, and container scope |
+| Supermemory to planner | Malicious memory text invents authority | Normalize and bound text; label untrusted; keep it outside policy and capability declarations |
 | Persistence and evidence | Mutation or loss hides unsafe behavior | Append-only events, immutable identifiers, ordering, and integrity checks |
 
 ## Mandatory controls
@@ -66,7 +68,7 @@ This threat model covers the approved prototype architecture. Milestone 3 implem
 
 The suite tests invalid transitions, stale observations, capability hallucination, unknown fields, expired approvals, duplicate commands, timeout behavior, provider unavailability, missing effect evidence, and false success. Security tests establish negative properties such as “a denied action is never dispatched,” not only successful examples.
 
-Milestone 3 additionally binds model plans to trusted goal, time, mode, observation, capability, version, and target references; exposes no model tools; fails over to an offline planner; and keeps memory outside policy, authority, execution, and verification. Repository gates cover dependency vulnerabilities, Git-visible secret candidates, ignored sensitive paths, lock consistency, and milestone scope. These controls do not constitute penetration testing or production security evidence.
+Milestone 4 binds model plans to trusted goal, time, mode, observation, capability, version, and target references; exposes no model tools; fails over to an offline planner; and keeps memory outside policy, authority, execution, and verification. Supermemory has no write surface, accepts no browser-selected scope, and fails to empty context. AppTest and facade tests cover provider-disabled startup, independent sessions, deterministic reset, malicious memory, fixed search limits, and visible evidence. Repository gates cover dependency vulnerabilities, Git-visible secret candidates, ignored sensitive paths, lock consistency, and milestone scope. These controls do not constitute penetration testing or production security evidence.
 
 ## Residual risk
 

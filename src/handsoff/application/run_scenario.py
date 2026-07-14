@@ -51,11 +51,13 @@ class ScenarioRunner:
         planner: Planner | None = None,
         memory: MemoryProvider | None = None,
         ledger: LedgerRepository | None = None,
+        memory_scope: str | None = None,
     ) -> None:
         """Compose provider-independent defaults with optional test overrides."""
         self._planner = planner or DeterministicPlanner()
         self._memory = memory or NoopMemoryProvider()
         self._ledger = ledger or InMemoryLedger()
+        self._memory_scope = memory_scope
 
     def run(self, scenario: ScenarioDefinition) -> ScenarioAssessment:
         """Execute and compare all deterministic acceptance evidence."""
@@ -67,7 +69,7 @@ class ScenarioRunner:
             capabilities=registry.contracts(),
             mode=AutonomyMode.SIMULATION,
             now=scenario.clock_start_at,
-            memory_scope=scenario.scenario_id,
+            memory_scope=self._memory_scope or scenario.scenario_id,
         )
         runtime = PlanExecutor(
             registry=registry,
