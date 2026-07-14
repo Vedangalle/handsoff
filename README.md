@@ -15,7 +15,7 @@
 <p align="center"><em>Internal prototype description: Physical Codex</em></p>
 
 > [!IMPORTANT]
-> Handsoff has completed **Milestone 4: the hackathon application**. The repository contains the deterministic simulation core, six reference scenarios, append-only evidence, contained Gemini planning with offline fallback, bounded read-only Supermemory context, and an interactive whole-home Streamlit surface. This repository does not control real devices.
+> Handsoff has completed **Milestone 4: the hackathon application**. The repository contains the deterministic simulation core, six reference scenarios, append-only evidence, contained Gemini planning with offline fallback, bounded read-only Supermemory context, an interactive whole-home Streamlit surface, and a one-click judge comparison. This repository does not control real devices.
 
 ## The idea
 
@@ -54,6 +54,7 @@ Handsoff is not intended to replace Matter, Home Assistant, device firmware, or 
 - [System model](#system-model)
 - [Safety invariants](#safety-invariants)
 - [Canonical demonstration](#canonical-demonstration)
+- [Judge comparison](#judge-comparison)
 - [Current implementation status](#current-implementation-status)
 - [Autonomy modes](#autonomy-modes)
 - [Repository structure](#repository-structure)
@@ -149,6 +150,21 @@ The architecture is not demonstrated by a single happy path. The approved scenar
 
 All six named fixtures are committed, schema-validated, executed through the deterministic runtime, and compared against policy, dispatch, terminal-state, and verification expectations.
 
+## Judge comparison
+
+The primary hackathon workflow is **Run judge comparison**. One click executes two fresh, isolated traces for the selected goal:
+
+1. a deterministic reference with no external context; and
+2. a Gemini-plus-Supermemory path with deterministic planning and empty-context fallback when either provider is unavailable.
+
+The UI compares behavior-level action semantics—targets, parameters, capability dependencies, failure behavior, preconditions, and acceptance evidence—while excluding generated identifiers and timestamps. It then reports the observed relationship between trusted inputs, declared capability containment, deterministic policy, terminal state, and independent verification. Context may alter an untrusted proposal; the comparison does not grant context any authority.
+
+The complete [hackathon judge guide](docs/hackathon-judge-guide.md) includes the 90-second demonstration, architecture graphic, submission copy, screenshot set, live-provider acceptance procedure, and claims boundary.
+
+![Handsoff whole-home staged simulation](docs/assets/whole-home-staged.png)
+
+![Handsoff credential-free judge comparison](docs/assets/judge-comparison-offline.png)
+
 ## Current implementation status
 
 | Area | Status | Evidence in this repository |
@@ -165,7 +181,7 @@ All six named fixtures are committed, schema-validated, executed through the det
 | Gemini planner adapter | Implemented and optional | Minimized prompt, Pydantic structured output, trusted binding checks, no tools, deterministic fallback |
 | Planner evaluation | Implemented | Configuration, schema validity, hallucinations, parameters, preconditions, policy result, latency, and token usage |
 | Memory boundary | Implemented and optional | Context-only port, no-op and synthetic adapters, read-only Supermemory search, fixed scope, five-result limit, normalization, and fail-closed fallback |
-| Operator interface | Implemented | Responsive whole-home spatial runtime plus narrative outcome, proposal, policy, transitions, verification, ledger, and memory evidence views |
+| Operator interface | Implemented | Responsive whole-home spatial runtime, one-click judge comparison, and narrative outcome, proposal, policy, transitions, verification, ledger, and memory evidence views |
 | Supermemory demonstration | Implemented and optional | Hybrid retrieval supplies bounded untrusted planner context; no writes or authority path exist |
 | Home Assistant integration | Post-hackathon | Not part of the M4 completion line |
 | Real device actuation | Prohibited | No real actuation in the prototype |
@@ -205,6 +221,9 @@ handsoff/
 │   ├── threat-model.md
 │   ├── verification-plan.md
 │   ├── streamlit-deployment.md
+│   ├── hackathon-judge-guide.md
+│   ├── release-checklist.md
+│   ├── assets/
 │   └── adr/
 │       ├── 0001-modular-monolith.md
 │       ├── 0002-model-is-not-controller.md
@@ -236,7 +255,7 @@ handsoff/
 │   │   ├── policies.py
 │   │   └── scenarios.py
 │   ├── ports/                      # Planner, memory, adapter, ledger, and clock
-│   ├── presentation/               # Typed facade, ecosystem projection, configuration, and session state
+│   ├── presentation/               # Typed facade, semantic comparison, ecosystem projection, and session state
 │   ├── __init__.py
 │   └── py.typed
 ├── scenarios/
@@ -310,7 +329,9 @@ uv sync --frozen --all-extras
 uv run --frozen --all-extras streamlit run streamlit_app.py
 ```
 
-Open the local URL printed by Streamlit. The default **Offline memory lab** is the complete, presentation-ready path: it requires no credential, makes no network call, and supplies clearly labeled synthetic preference records through the same bounded memory port. Select **Whole-home evening arrival**, run the mission, and inspect the verified house. The presentation follows an approach → entry → comfort → kitchen → media sequence: the car arrives, garage opens, charger prepares, climate and welcome lighting settle, fan rotates in place, ice and guarded coffee preparation begin, and the television resumes `Orbit Seven`. Device inspection remains user-controlled and reduced-motion preferences disable the cinematic sequence. Then select **Obstructed garage** to see the same spatial surface fail closed. Every state remains traceable through the proposal, policy reasons, transitions, verification results, ordered ledger, and memory boundary below the house.
+Open the local URL printed by Streamlit. Select **Whole-home evening arrival** and click **Run judge comparison** for the primary workflow. It runs a deterministic reference and a separate Gemini-plus-Supermemory trace, then renders recalled context, behavior-level proposal changes, authority invariants, and the complete contextual evidence trace. With no credentials, the comparison remains complete and explicitly reports safe fallback.
+
+The default **Offline memory lab** is also presentation-ready: it requires no credential, makes no network call, and supplies clearly labeled synthetic preference records through the same bounded memory port. Run the selected mode and inspect the verified house. The presentation follows an approach → entry → comfort → kitchen → media sequence: the car arrives, garage opens, charger prepares, climate and welcome lighting settle, fan rotates in place, ice and guarded coffee preparation begin, and the television resumes `Orbit Seven`. Device inspection remains user-controlled and reduced-motion preferences disable the cinematic sequence. Then select **Obstructed garage** to see the same spatial surface fail closed. Every state remains traceable through the proposal, policy reasons, transitions, verification results, ordered ledger, and memory boundary below the house.
 
 The synthetic mode is deliberately honest about what it proves. It demonstrates context retrieval, normalization, planner containment, and the authority boundary; it does not claim that a live Supermemory request occurred. Deterministic baseline also remains fully offline. Live Gemini and Supermemory modes are optional comparisons for deployments with newly issued server-side credentials.
 
@@ -369,7 +390,7 @@ The deterministic core must remain installable and testable without Gemini, Supe
 
 ## Streamlit and Supermemory path
 
-Milestone 4 is a single-process Streamlit application over typed application services. Its interactive cutaway-home projection is derived from committed scenario and runtime evidence; the embedded component has no authority path of its own. It supports four visible modes: deterministic baseline, an offline synthetic-memory lab, optional Gemini planning, and optional Gemini plus read-only Supermemory context. The core and the complete visual demonstration remain functional when both external providers are disabled.
+Milestone 4 is a single-process Streamlit application over typed application services. Its interactive cutaway-home projection is derived from committed scenario and runtime evidence; the embedded component has no authority path of its own. It supports four visible single-run modes plus a one-click deterministic-versus-contextual judge comparison. The core and complete visual demonstration remain functional when both external providers are disabled.
 
 The public demo uses one fixed server-configured, demo-only Supermemory scope; retrieves at most five hybrid-search results; normalizes and truncates each result; labels it untrusted; and passes it only to planner context. Browser users cannot select container tags or write shared memory. Provider keys remain in Streamlit Community Cloud secrets, never in Git or session output.
 
@@ -387,7 +408,7 @@ The prototype core does not use LangChain, a general agent framework, Celery, Re
 | **M1 — Contracts and deterministic tests** | Domain vocabulary, strict schemas, test clock, scenario schema, six fixtures, and fail-first invariant tests | **Complete** |
 | **M2 — Deterministic runtime** | World model, capability registry, policy kernel, state machine, verifier, ledger, simulator, and executable scenarios | **Complete** |
 | **M3 — Contained planner** | Minimized Gemini structured output, trusted binding checks, deterministic fallback, optional memory port, and model evaluation | **Complete** |
-| **M4 — Hackathon application** | Interactive whole-home spatial runtime, complete evidence UI, and optional read-only Supermemory context comparison | **Complete** |
+| **M4 — Hackathon application** | Interactive whole-home spatial runtime, complete evidence UI, optional read-only Supermemory context, and one-click judge comparison | **Complete** |
 
 Milestone 4 is the completed hackathon line. There are no additional committed milestones. Home Assistant shadow integration, live telemetry, and any real-device work are optional post-hackathon extensions requiring separate architecture and security approval.
 
@@ -401,6 +422,8 @@ Milestone 4 is the completed hackathon line. There are no additional committed m
 | [Threat model](docs/threat-model.md) | Assets, adversaries, abuse paths, controls, risk classes, and residual risk |
 | [Verification plan](docs/verification-plan.md) | Evidence standard, current gates, future test hierarchy, and prototype acceptance criteria |
 | [Streamlit deployment](docs/streamlit-deployment.md) | M4 process, Supermemory boundary, session isolation, secrets, packaging, and acceptance |
+| [Hackathon judge guide](docs/hackathon-judge-guide.md) | Judge workflow, architecture graphic, 90-second script, submission copy, screenshots, live acceptance, and claims boundary |
+| [Release checklist](docs/release-checklist.md) | Automated freeze, owner-only deployment and video steps, and rollback procedure |
 | [ADR 0001](docs/adr/0001-modular-monolith.md) | Modular monolith with hexagonal boundaries |
 | [ADR 0002](docs/adr/0002-model-is-not-controller.md) | Model planning without model authority |
 | [ADR 0003](docs/adr/0003-simulator-first.md) | Deterministic simulation before live integration |

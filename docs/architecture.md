@@ -190,6 +190,7 @@ Milestone 4 completes the hackathon application:
 - a context-only memory port plus no-op adapter so the core remains complete without Supermemory;
 - fixed-scope read-only Supermemory hybrid search with bounded normalized output and empty-context fallback;
 - per-browser Streamlit session state over a typed facade, with all six fixtures and every evidence layer visible; and
-- an interactive whole-home projection derived only from committed scenario contracts and typed runtime evidence, with no dispatch or authorization surface.
+- an interactive whole-home projection derived only from committed scenario contracts and typed runtime evidence, with no dispatch or authorization surface; and
+- an evidence-first judge projection that executes independent deterministic and contextual traces and compares semantic proposals without entering the authority path.
 
 No Home Assistant integration, shadow-state ingestion, live device actuation, public memory writes, or real household data exists. Any such work is post-hackathon and requires a separately approved architecture and security review. The completed presentation and optional read-only memory design are documented in [the deployment guide](streamlit-deployment.md).

@@ -19,6 +19,7 @@ from handsoff.adapters.persistence.memory import InMemoryLedger
 from handsoff.adapters.planner import DeterministicPlanner, FallbackPlanner, GeminiPlanner
 from handsoff.adapters.planner.gemini import GoogleGenAITransport
 from handsoff.application.run_scenario import ScenarioAssessment, ScenarioRunner, load_scenario
+from handsoff.presentation.comparison import DemoComparison, compare_runs
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -162,6 +163,12 @@ class DemoFacade:
             memory=report,
             trusted_input_fingerprint=self._trusted_fingerprint(scenario),
         )
+
+    def compare(self, scenario_id: str) -> DemoComparison:
+        """Execute isolated baseline and contextual traces for judge inspection."""
+        baseline = self.run(scenario_id, DemoMode.DETERMINISTIC)
+        contextual = self.run(scenario_id, DemoMode.GEMINI_SUPERMEMORY)
+        return compare_runs(baseline, contextual)
 
     def _planner(self, mode: DemoMode) -> tuple[Planner, Callable[[], None] | None]:
         """Compose deterministic or contained Gemini planning with fallback."""

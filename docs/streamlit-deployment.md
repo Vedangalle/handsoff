@@ -35,6 +35,12 @@ Streamlit is a presentation adapter. It does not import provider SDK objects int
 
 The interface makes the active mode and every external-provider boundary visible. Synthetic records are committed fixtures labeled `OFFLINE / SYNTHETIC`; they never imply a live provider call. Provider failure falls back to deterministic planning or no memory; it never weakens policy.
 
+## Judge comparison
+
+**Run judge comparison** executes the selected scenario twice with fresh worlds, ledgers, planners, and memory adapters. Trace A uses the deterministic baseline. Trace B uses Gemini plus fixed-scope Supermemory with the existing fallback boundaries. The UI compares action meaning after excluding generated plan IDs, action IDs, idempotency keys, and timestamps.
+
+The comparison reports provider provenance, recalled context, changed action fields, trusted-input fingerprint equality, declared-capability containment, policy-decision equality, terminal-state equality, and verification-result equality. A changed policy or outcome is rendered as observed evidence; the presentation never assumes that context must preserve or alter it. The contextual trace remains fully inspectable in the existing evidence tabs.
+
 ## Credential-free demonstration
 
 The default public experience is the offline memory lab. It returns four bounded, deterministic preference records through `SyntheticMemoryProvider`, then executes the same planner, policy, simulator, verifier, and ledger used by every other mode. It is intended for local judging, screenshots, and deployments where provider credentials are unavailable.
@@ -127,7 +133,9 @@ The default offline memory lab and deterministic baseline are complete without `
 2. Select Python 3.12.
 3. Deploy deterministic mode without secrets first and run every reference scenario.
 4. Add optional provider values only in Advanced settings.
-5. Verify Gemini failure shows deterministic fallback and Supermemory failure shows empty-context fallback.
-6. Confirm no provider value, raw prompt, or raw response appears in UI output or logs.
+5. Run Judge comparison without provider values and verify it reports **Safe fallback path** with no fabricated semantic change.
+6. Add optional provider values only through Advanced settings, then follow the user-only [live-provider acceptance procedure](hackathon-judge-guide.md#live-provider-acceptance).
+7. Verify Gemini failure shows deterministic fallback and Supermemory failure shows empty-context fallback.
+8. Confirm no provider value, raw prompt, or raw response appears in UI output or logs.
 
 Community Cloud is a public demonstration host, not a durable system of record. Every run reconstructs an in-memory simulator and ledger; browser sessions retain only their own last typed result.

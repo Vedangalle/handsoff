@@ -62,6 +62,8 @@ The suite verifies:
 - malicious memory cannot introduce an undeclared capability or change the trusted-input fingerprint;
 - every committed scenario is selectable and reproducible through the typed facade;
 - browser-session objects do not share mutable results and reset reconstructs deterministic evidence;
+- Judge comparison executes two isolated traces, excludes generated identities from semantic diffs, reports modified, added, removed, and unchanged actions, and preserves provider-fallback provenance;
+- mocked Gemini and Supermemory influence is visible without changing trusted inputs, declared capability containment, deterministic policy, terminal state, or verification evidence;
 - the Streamlit entrypoint starts without secrets, runs a scenario, exposes every evidence view, and resets through native `AppTest` interaction;
 - the whole-home projection distinguishes staged, verified, policy-blocked, execution-failed, and prohibited device states from typed evidence;
 - the cinematic layer keeps SVG rotation locally anchored and honors reduced-motion preferences; and
@@ -71,7 +73,7 @@ These checks prove the committed implementation against synthetic fixtures. They
 
 ## Milestone 4 application evidence
 
-Milestone 4 includes Streamlit import/smoke tests, per-session isolation checks, deterministic reset/replay, provider-disabled startup, Gemini failure fallback through the UI, fixed Supermemory scope enforcement, no public memory writes, malicious-memory rejection, and visible trace completeness. Live Gemini and Supermemory calls are not part of validation because the repository does not read real credentials.
+Milestone 4 includes Streamlit import/smoke tests, per-session isolation checks, deterministic reset/replay, provider-disabled startup, one-click Judge comparison, semantic proposal-diff tests, mocked live-provider influence, Gemini failure fallback through the UI, fixed Supermemory scope enforcement, no public memory writes, malicious-memory rejection, and visible trace completeness. Live Gemini and Supermemory calls are not part of validation because the repository does not read real credentials.
 
 ## Model evaluation
 

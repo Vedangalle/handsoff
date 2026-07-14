@@ -11,6 +11,7 @@ import streamlit as st
 
 from handsoff.domain.events import EventKind
 from handsoff.presentation import (
+    DemoComparison,
     DemoFacade,
     DemoMode,
     DemoRun,
@@ -216,6 +217,43 @@ def _inject_design_system() -> None:
         .ho-card h3 { color: var(--ho-text); margin: 1.2rem 0 .5rem; }
         .ho-card p { color: var(--ho-muted); font-size: .82rem; line-height: 1.5; margin: 0; }
 
+        .ho-compare-hero {
+            display: grid;
+            grid-template-columns: 1.15fr .85fr;
+            gap: 1rem;
+            align-items: stretch;
+            margin: .15rem 0 1rem;
+        }
+        .ho-compare-pane {
+            border: 1px solid var(--ho-line);
+            background: rgba(255, 255, 255, .82);
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 12px 34px rgba(36, 88, 168, .055);
+        }
+        .ho-compare-pane--context {
+            background: linear-gradient(145deg, rgba(238, 245, 255, .98), rgba(255, 255, 255, .9));
+            border-color: rgba(35, 104, 232, .25);
+        }
+        .ho-compare-label {
+            color: var(--ho-blue);
+            font: 700 .65rem/1 ui-monospace, monospace;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+        .ho-compare-pane h3 { margin: .7rem 0 .35rem; font-size: 1.22rem !important; }
+        .ho-compare-pane p { color: var(--ho-muted); margin: 0; font-size: .82rem; }
+        .ho-proof-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .65rem; }
+        .ho-proof {
+            border-top: 2px solid var(--ho-green);
+            background: rgba(255, 255, 255, .78);
+            padding: .9rem;
+            border-radius: 4px 4px 12px 12px;
+        }
+        .ho-proof--changed { border-top-color: var(--ho-blue); }
+        .ho-proof b { display: block; color: var(--ho-text); font-size: .78rem; }
+        .ho-proof span { display: block; color: var(--ho-muted); font-size: .69rem; margin-top: .4rem; }
+
         .ho-hero-panel {
             border: 1px solid var(--ho-line);
             background:
@@ -329,6 +367,7 @@ def _inject_design_system() -> None:
         @media (max-width: 900px) {
             [data-testid="stMainBlockContainer"] { padding: 2rem 1rem 4rem; }
             .ho-grid--3, .ho-grid--4 { grid-template-columns: 1fr; }
+            .ho-compare-hero, .ho-proof-grid { grid-template-columns: 1fr; }
             .ho-pipeline { grid-template-columns: repeat(3, 1fr); row-gap: 1.4rem; }
             .ho-hero-top { display: block; }
         }
@@ -410,15 +449,18 @@ def _render_sidebar(session: DemoSession) -> tuple[str, DemoMode]:
     )
     st.sidebar.caption("No credential values or raw provider responses enter the browser surface.")
 
-    run_clicked = st.sidebar.button(
-        "Run bounded mission →", type="primary", use_container_width=True
+    compare_clicked = st.sidebar.button(
+        "Run judge comparison →", type="primary", use_container_width=True
     )
+    run_clicked = st.sidebar.button("Run selected mode", use_container_width=True)
     reset_clicked = st.sidebar.button("Reset evidence", use_container_width=True)
     if reset_clicked:
         session.reset()
         st.rerun()
     if run_clicked:
         session.run(scenario_id, mode)
+    if compare_clicked:
+        session.compare(scenario_id)
     return scenario_id, mode
 
 
@@ -721,13 +763,106 @@ def _render_landing(scenario: ScenarioDefinition, mode: DemoMode) -> None:
     )
 
 
-def _render_summary(run: DemoRun) -> None:
+def _render_comparison(comparison: DemoComparison) -> None:
+    """Render provider influence and control invariants from two complete traces."""
+    contextual = comparison.contextual
+    planner = contextual.assessment.runtime.planner
+    changed = comparison.changed_deltas
+    provider_state = "Live provider path" if comparison.live_provider_path else "Safe fallback path"
+    provider_detail = (
+        "Gemini and Supermemory completed without fallback."
+        if comparison.live_provider_path
+        else "Unavailable providers degraded to deterministic planning and/or empty context."
+    )
+    _render_section_label("02", "Judge comparison / context versus control")
+    st.markdown(
+        f"""
+        <div class="ho-compare-hero">
+          <div class="ho-compare-pane">
+            <div class="ho-compare-label">A / deterministic reference</div>
+            <h3>{escape(comparison.baseline.assessment.runtime.planner.provider)}</h3>
+            <p>No external context. Reproducible proposal, policy, simulation, and evidence.</p>
+          </div>
+          <div class="ho-compare-pane ho-compare-pane--context">
+            <div class="ho-compare-label">B / Gemini + Supermemory</div>
+            <h3>{escape(provider_state)}</h3>
+            <p>{escape(provider_detail)}</p>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f"""
+        <div class="ho-proof-grid">
+          <div class="ho-proof"><b>Trusted inputs</b><span>{"MATCH" if comparison.trusted_inputs_match else "DIFFER"}</span></div>
+          <div class="ho-proof"><b>Capability bound</b><span>{"PRESERVED" if comparison.contextual_capabilities_declared else "VIOLATED"}</span></div>
+          <div class="ho-proof"><b>Policy result</b><span>{"MATCH" if comparison.policy_decision_match else "CHANGED"}</span></div>
+          <div class="ho-proof"><b>Terminal state</b><span>{"MATCH" if comparison.terminal_states_match else "CHANGED"}</span></div>
+          <div class="ho-proof"><b>Verification</b><span>{"MATCH" if comparison.verification_results_match else "CHANGED"}</span></div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.caption(
+        "Context may shape an untrusted typed proposal. It cannot change trusted world inputs, "
+        "declare capabilities, grant authority, dispatch actions, or manufacture verification."
+    )
+
+    columns = st.columns(4)
+    columns[0].metric("Recalled context", len(contextual.memory.items))
+    columns[1].metric("Semantic changes", len(changed))
+    columns[2].metric("Planner", planner.provider)
+    columns[3].metric("Policy", _humanize(contextual.assessment.runtime.policy.decision.value))
+
+    st.markdown("#### Proposal semantics")
+    st.dataframe(
+        [
+            {
+                "capability": delta.capability_id,
+                "occurrence": delta.occurrence,
+                "change": delta.change.value,
+                "changed fields": ", ".join(delta.changed_fields) or "—",
+                "baseline parameters": delta.baseline.parameters if delta.baseline else "—",
+                "contextual parameters": delta.contextual.parameters if delta.contextual else "—",
+            }
+            for delta in comparison.proposal_deltas
+        ],
+        width="stretch",
+        hide_index=True,
+    )
+    if changed:
+        st.caption(
+            "The table reports behavior-level differences only; generated IDs and timestamps "
+            "are intentionally excluded."
+        )
+    else:
+        st.caption(
+            "No behavior-level difference was observed. This is expected when Gemini falls back "
+            "or when context does not alter the typed proposal."
+        )
+
+    st.markdown("#### Recalled context supplied to the planner")
+    if contextual.memory.items:
+        for item in contextual.memory.items:
+            st.markdown(
+                f'<div class="ho-memory"><div class="ho-memory-head">'
+                f'<span class="ho-memory-source">{escape(item.source_id)}</span>'
+                f'<span class="ho-memory-score">RELEVANCE {item.relevance:.2f}</span></div>'
+                f"<p>{escape(item.text)}</p></div>",
+                unsafe_allow_html=True,
+            )
+    else:
+        st.caption("No external context entered this trace; empty-context fallback was preserved.")
+
+
+def _render_summary(run: DemoRun, index: str = "02") -> None:
     """Render the executive outcome without recomputing authority."""
     runtime = run.assessment.runtime
     decision = runtime.policy.decision.value
     result_class = "ho-result--allow" if decision == "allow" else "ho-result--deny"
     match_label = "TRACE MATCHED" if run.assessment.matched else "TRACE MISMATCH"
-    _render_section_label("02", "Mission outcome")
+    _render_section_label(index, "Mission outcome")
     st.markdown(
         f"""
         <div class="ho-hero-panel">
@@ -978,8 +1113,15 @@ def main() -> None:
         return
 
     _render_ecosystem(build_ecosystem_view(run.scenario, run.assessment.runtime))
-    _render_summary(run)
-    _render_section_label("03", "Inspectable runtime")
+    comparison = session.last_comparison
+    if comparison is None:
+        _render_summary(run)
+        runtime_index = "03"
+    else:
+        _render_comparison(comparison)
+        _render_summary(run, "03")
+        runtime_index = "04"
+    _render_section_label(runtime_index, "Inspectable runtime")
     tabs = st.tabs(
         ["Overview", "Proposal", "Policy", "Execution", "Verification", "Evidence", "Memory"],
     )

@@ -59,6 +59,7 @@ REQUIRED_FILES = (
     "src/handsoff/adapters/memory/supermemory.py",
     "src/handsoff/presentation/__init__.py",
     "src/handsoff/presentation/config.py",
+    "src/handsoff/presentation/comparison.py",
     "src/handsoff/presentation/facade.py",
     "src/handsoff/presentation/session.py",
     "scenarios/nominal_arrival.yaml",
@@ -91,6 +92,8 @@ REQUIRED_FILES = (
     "scripts/run_demo.py",
     "scripts/evaluate_planner.py",
     "docs/streamlit-deployment.md",
+    "docs/hackathon-judge-guide.md",
+    "docs/release-checklist.md",
     "docs/adr/0004-streamlit-hackathon-interface.md",
 )
 FORBIDDEN_POST_HACKATHON_PATHS = (

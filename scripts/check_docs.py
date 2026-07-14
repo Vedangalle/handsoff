@@ -15,6 +15,8 @@ REQUIRED_DOCUMENTS = (
     ROOT / "docs/threat-model.md",
     ROOT / "docs/verification-plan.md",
     ROOT / "docs/streamlit-deployment.md",
+    ROOT / "docs/hackathon-judge-guide.md",
+    ROOT / "docs/release-checklist.md",
     ROOT / "docs/adr/0001-modular-monolith.md",
     ROOT / "docs/adr/0002-model-is-not-controller.md",
     ROOT / "docs/adr/0003-simulator-first.md",
