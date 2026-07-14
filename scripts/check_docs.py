@@ -14,9 +14,11 @@ REQUIRED_DOCUMENTS = (
     ROOT / "docs/privacy-boundaries.md",
     ROOT / "docs/threat-model.md",
     ROOT / "docs/verification-plan.md",
+    ROOT / "docs/streamlit-deployment.md",
     ROOT / "docs/adr/0001-modular-monolith.md",
     ROOT / "docs/adr/0002-model-is-not-controller.md",
     ROOT / "docs/adr/0003-simulator-first.md",
+    ROOT / "docs/adr/0004-streamlit-hackathon-interface.md",
 )
 LINK_PATTERN = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 MERMAID_PATTERN = re.compile(r"```mermaid\s*\n(.*?)```", re.DOTALL)

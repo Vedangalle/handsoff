@@ -20,11 +20,11 @@ The first objective is:
 
 > Prepare my environment for arrival in five minutes.
 
-The future deterministic simulator will coordinate vehicle trajectory, garage state, charger readiness, room conditioning, media readiness, and weather context. It must demonstrate nominal arrival, false proximity, an obstructed garage, an energy constraint, stale telemetry, and partial execution failure.
+The deterministic simulator coordinates garage state, charger readiness, room conditioning, media readiness, destination confidence, and energy constraints. It demonstrates nominal arrival, false proximity, an obstructed garage, an energy constraint, stale telemetry, and partial execution failure.
 
 ## Core promise
 
-Given a goal, timestamped world state, declared capabilities, and explicit constraints, the future runtime will:
+Given a goal, timestamped world state, declared capabilities, and explicit constraints, the implemented simulation runtime can:
 
 - produce a schema-valid plan;
 - explain the plan before execution;
@@ -33,7 +33,7 @@ Given a goal, timestamped world state, declared capabilities, and explicit const
 - detect incomplete or contradictory outcomes; and
 - produce a reproducible evidence trace.
 
-These are product requirements, not claims of implemented runtime behavior. Milestone 1 implements contracts and test vectors only.
+These behaviors are measured against committed synthetic fixtures. They are not evidence of production safety or real-device operation.
 
 ## Product principles
 
@@ -61,4 +61,4 @@ These are product requirements, not claims of implemented runtime behavior. Mile
 
 ## Current status
 
-Milestone 1 establishes strict domain contracts, policy-result and transition invariants, a deterministic test clock, and six schema-validated reference fixtures. It does not implement the policy kernel, execution engine, simulator behavior, persistence, API, provider adapters, or user interface. Product behavior remains deferred to later approved milestones.
+Milestones 2 and 3 establish the deterministic runtime, six reproducible scenarios, append-only evidence, contained Gemini structured planning, deterministic fallback, and model evaluation. Milestone 4 is the remaining hackathon milestone: a Streamlit operator interface with optional read-only Supermemory context comparison. The prototype still has no real-device integration or actuation.

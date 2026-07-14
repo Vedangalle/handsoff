@@ -4,7 +4,7 @@
 
 Handsoff may eventually process location, occupancy, routines, schedules, device state, media context, energy use, goals, approvals, and action history. These data can reveal sensitive household behavior even when no field is labeled personal information.
 
-Milestone 1 processes only synthetic, simulation-labeled contract fixtures. It accepts no real household data and contacts no external provider. This document defines constraints for later runtime work.
+Milestone 3 processes only synthetic, simulation-labeled fixtures. The deterministic path contacts no provider. The optional Gemini adapter exists but is not invoked by validation and receives only minimized planner context when explicitly configured. No real household data is accepted.
 
 ## Data zones
 
@@ -37,7 +37,7 @@ Future credential interfaces must support revocation, rotation, least privilege,
 
 Gemini may receive a minimized snapshot for typed plan proposal generation. Supermemory, if added, may receive or retrieve long-horizon preference or prior-outcome context. Neither provider belongs in deterministic policy, authority, execution, or verification.
 
-Before either adapter is implemented, its documentation must specify:
+Before the Supermemory adapter or any non-simulated data path is implemented, its documentation must specify:
 
 - exact input and output fields;
 - provider account and region assumptions;
@@ -45,6 +45,8 @@ Before either adapter is implemented, its documentation must specify:
 - timeout, unavailability, and deletion behavior;
 - redaction and minimization steps; and
 - observable evidence that the deterministic core still functions when disabled.
+
+The Gemini prompt builder already excludes adapter IDs, source-adapter IDs, correlation IDs, credentials, prohibited capabilities, and capabilities unavailable in the active mode. Optional memory text is normalized, bounded, and labeled as untrusted external context. The [Streamlit deployment plan](streamlit-deployment.md) defines a fixed demo-only, read-only Supermemory scope for Milestone 4.
 
 ## Residual privacy risk
 

@@ -1,4 +1,4 @@
-"""Validate Milestone 1 repository invariants without reading credential files."""
+"""Validate Milestone 3 repository invariants without reading credential files."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPECTED_VERSION = "0.1.0"
+EXPECTED_VERSION = "0.3.0"
 REQUIRED_FILES = (
     "AGENTS.md",
     "README.md",
@@ -28,11 +28,30 @@ REQUIRED_FILES = (
     "src/handsoff/domain/execution.py",
     "src/handsoff/domain/events.py",
     "src/handsoff/domain/scenarios.py",
+    "src/handsoff/domain/planning.py",
     "src/handsoff/ports/__init__.py",
     "src/handsoff/ports/clock.py",
+    "src/handsoff/ports/planner.py",
+    "src/handsoff/ports/capability_adapter.py",
+    "src/handsoff/ports/repositories.py",
+    "src/handsoff/ports/memory.py",
+    "src/handsoff/application/world_model.py",
+    "src/handsoff/application/capability_registry.py",
+    "src/handsoff/application/evaluate_plan.py",
+    "src/handsoff/application/execute_plan.py",
+    "src/handsoff/application/verify_outcome.py",
+    "src/handsoff/application/run_scenario.py",
+    "src/handsoff/application/planner_evaluation.py",
     "src/handsoff/adapters/__init__.py",
     "src/handsoff/adapters/clock/__init__.py",
     "src/handsoff/adapters/clock/deterministic.py",
+    "src/handsoff/adapters/planner/deterministic.py",
+    "src/handsoff/adapters/planner/gemini.py",
+    "src/handsoff/adapters/planner/fallback.py",
+    "src/handsoff/adapters/devices/simulator/adapter.py",
+    "src/handsoff/adapters/persistence/memory.py",
+    "src/handsoff/adapters/persistence/sqlite/ledger.py",
+    "src/handsoff/adapters/memory/noop.py",
     "scenarios/nominal_arrival.yaml",
     "scenarios/false_proximity.yaml",
     "scenarios/blocked_garage.yaml",
@@ -42,6 +61,8 @@ REQUIRED_FILES = (
     "tests/test_foundation.py",
     "tests/contract/test_reference_scenarios.py",
     "tests/property/test_contract_properties.py",
+    "tests/integration/test_runtime.py",
+    "tests/scenarios/test_reference_runtime.py",
     "tests/unit/adapters/test_deterministic_clock.py",
     "tests/unit/domain/test_capabilities.py",
     "tests/unit/domain/test_events.py",
@@ -55,23 +76,26 @@ REQUIRED_FILES = (
     "scripts/check_repository.py",
     "scripts/check_secrets.py",
     "scripts/validate.py",
+    "scripts/run_demo.py",
+    "scripts/evaluate_planner.py",
+    "docs/streamlit-deployment.md",
+    "docs/adr/0004-streamlit-hackathon-interface.md",
 )
-DEFERRED_POST_MILESTONE_1_PATHS = (
-    "src/handsoff/application",
-    "src/handsoff/adapters/planner",
-    "src/handsoff/adapters/devices",
-    "src/handsoff/adapters/persistence",
-    "src/handsoff/adapters/memory",
+DEFERRED_MILESTONE_4_PATHS = (
+    "streamlit_app.py",
+    "src/handsoff/presentation",
     "src/handsoff/api",
     "src/handsoff/config.py",
     "web",
-    "scripts/run_demo.py",
+    ".streamlit/config.toml",
+    "requirements.txt",
 )
 IGNORED_SENSITIVE_PATHS = (
     ".env",
     ".env.local",
     "credentials.json",
     "secrets.json",
+    ".streamlit/secrets.toml",
     "runtime/state.sqlite3",
     "logs/handsoff.log",
 )
@@ -114,15 +138,15 @@ def validate_sensitive_ignores(errors: list[str]) -> None:
 
 
 def validate_project_version(errors: list[str]) -> None:
-    """Require package metadata to identify the completed contract milestone."""
+    """Require package metadata to identify the completed planner milestone."""
     with (ROOT / "pyproject.toml").open("rb") as project_file:
         project = tomllib.load(project_file)
     if project.get("project", {}).get("version") != EXPECTED_VERSION:
-        errors.append(f"project version must be {EXPECTED_VERSION} for Milestone 1")
+        errors.append(f"project version must be {EXPECTED_VERSION} for Milestone 3")
 
 
 def main() -> int:
-    """Run Milestone 1 structural checks."""
+    """Run Milestone 3 structural checks."""
     errors: list[str] = []
 
     errors.extend(
@@ -135,8 +159,8 @@ def main() -> int:
         errors.append("LICENSE exists even though the license decision is pending")
 
     errors.extend(
-        f"post-Milestone 1 runtime path exists: {relative_path}"
-        for relative_path in DEFERRED_POST_MILESTONE_1_PATHS
+        f"Milestone 4 interface path exists early: {relative_path}"
+        for relative_path in DEFERRED_MILESTONE_4_PATHS
         if (ROOT / relative_path).exists()
     )
 
@@ -158,7 +182,7 @@ def main() -> int:
             print(f"ERROR: {error}")
         return 1
 
-    print("Repository validation passed (Milestone 1 boundaries preserved).")
+    print("Repository validation passed (Milestone 3 boundaries preserved).")
     return 0
 
 

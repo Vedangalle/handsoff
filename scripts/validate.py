@@ -1,4 +1,4 @@
-"""Run the CI-equivalent local Milestone 1 validation suite."""
+"""Run the CI-equivalent local Milestone 3 validation suite."""
 
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ def main() -> int:
             print(f"ERROR: {label} failed with exit code {result.returncode}.")
             return result.returncode
 
-    print("\nAll Milestone 1 validation gates passed.")
+    print("\nAll Milestone 3 validation gates passed.")
     return 0
 
 

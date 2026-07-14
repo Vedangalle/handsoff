@@ -1,0 +1,1 @@
+"""Committed scenario acceptance tests."""

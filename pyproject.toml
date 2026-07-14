@@ -4,19 +4,17 @@ build-backend = "uv_build"
 
 [project]
 name = "handsoff"
-version = "0.1.0"
-description = "Strict contracts for a local-first goal-to-verified-outcome runtime"
+version = "0.3.0"
+description = "Deterministic goal-to-outcome runtime with a contained Gemini planner"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 authors = [{ name = "Vedang Alle" }]
 dependencies = [
     "alembic>=1.17,<2",
-    "fastapi>=0.121,<1",
     "httpx>=0.28,<1",
     "pydantic>=2.12,<3",
     "pyyaml>=6.0,<7",
     "sqlalchemy>=2.0,<3",
-    "uvicorn>=0.38,<1",
 ]
 
 [project.optional-dependencies]

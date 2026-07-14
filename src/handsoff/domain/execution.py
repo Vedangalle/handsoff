@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import Annotated, ClassVar, Self
+from typing import ClassVar, Self
 
-from pydantic import Field, model_validator
+from pydantic import model_validator
 
 from handsoff.domain import ContractModel, Identifier, NonEmptyText, UtcDateTime
 
@@ -130,7 +130,7 @@ class VerificationResult(ContractModel):
 
     condition_id: Identifier
     satisfied: bool
-    observation_ids: Annotated[tuple[Identifier, ...], Field(min_length=1)]
+    observation_ids: tuple[Identifier, ...]
     evaluated_at: UtcDateTime
     reason: NonEmptyText
 

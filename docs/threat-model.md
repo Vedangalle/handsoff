@@ -2,7 +2,7 @@
 
 ## Scope and status
 
-This threat model covers the approved prototype architecture. Milestone 1 implements schema-level controls and negative contract tests, not runtime security controls. The prototype is not approved for consequential hardware or real actuation.
+This threat model covers the approved prototype architecture. Milestone 3 implements deterministic simulation controls, negative runtime tests, prompt minimization, provider fallback, and append-only evidence. The prototype is not approved for consequential hardware or real actuation.
 
 ## Protected assets
 
@@ -64,9 +64,9 @@ This threat model covers the approved prototype architecture. Milestone 1 implem
 
 ## Security verification requirements
 
-Later milestones must test invalid transitions, stale observations, capability hallucination, unknown fields, expired approvals, duplicate commands, timeout behavior, malicious external text, provider unavailability, and false success. Security tests must establish negative properties such as “a denied action is never dispatched,” not only successful examples.
+The suite tests invalid transitions, stale observations, capability hallucination, unknown fields, expired approvals, duplicate commands, timeout behavior, provider unavailability, missing effect evidence, and false success. Security tests establish negative properties such as “a denied action is never dispatched,” not only successful examples.
 
-Milestone 1 additionally rejects undeclared fields and references, inconsistent policy results, illegal transitions, R3 authorization, non-simulation reference authority, cyclic plans, and contradictory scenario expectations. Repository gates cover dependency vulnerabilities, Git-visible secret candidates, ignored sensitive paths, lock consistency, and milestone scope. These contract, supply-chain, and hygiene checks do not constitute penetration testing or production security evidence.
+Milestone 3 additionally binds model plans to trusted goal, time, mode, observation, capability, version, and target references; exposes no model tools; fails over to an offline planner; and keeps memory outside policy, authority, execution, and verification. Repository gates cover dependency vulnerabilities, Git-visible secret candidates, ignored sensitive paths, lock consistency, and milestone scope. These controls do not constitute penetration testing or production security evidence.
 
 ## Residual risk
 

@@ -5,7 +5,7 @@
 <p align="center"><strong>A local-first, vendor-independent runtime for turning human goals into policy-checked actions and verified real-world outcomes.</strong></p>
 
 <p align="center">
-  <img alt="Project status: Milestone 1" src="https://img.shields.io/badge/status-Milestone%201-1f6feb">
+  <img alt="Project status: Milestone 3" src="https://img.shields.io/badge/status-Milestone%203-1f6feb">
   <img alt="Python 3.12" src="https://img.shields.io/badge/python-3.12-3776AB?logo=python&amp;logoColor=white">
   <img alt="Dependencies locked with uv" src="https://img.shields.io/badge/dependencies-uv%20locked-6f42c1">
   <img alt="Actuation: none" src="https://img.shields.io/badge/real%20actuation-none-d73a49">
@@ -15,7 +15,7 @@
 <p align="center"><em>Internal prototype description: Physical Codex</em></p>
 
 > [!IMPORTANT]
-> Handsoff is currently at **Milestone 1: contracts and deterministic tests**. Strict domain contracts, executable policy-result and transition invariants, a deterministic test clock, six reference scenario fixtures, and repository quality gates exist. The policy kernel, execution engine, simulator behavior, persistence, API, external-provider adapters, integrations, and user interface do not. This repository does not control real devices.
+> Handsoff is currently at **Milestone 3: deterministic runtime and contained planning**. The complete simulation core, all six reference scenarios, append-only evidence, deterministic fallback, minimized Gemini structured planning, and model evaluation exist. The Streamlit operator interface and optional Supermemory provider adapter are Milestone 4. This repository does not control real devices.
 
 ## The idea
 
@@ -58,6 +58,7 @@ Handsoff is not intended to replace Matter, Home Assistant, device firmware, or 
 - [Getting started](#getting-started)
 - [Validation](#validation)
 - [Dependency strategy](#dependency-strategy)
+- [Streamlit and Supermemory path](#streamlit-and-supermemory-path)
 - [Roadmap](#roadmap)
 - [Engineering documentation](#engineering-documentation)
 - [Security and privacy](#security-and-privacy)
@@ -107,7 +108,7 @@ See [Architecture](docs/architecture.md) for the fixed architectural decisions, 
 
 ## Safety invariants
 
-These are architectural requirements. Milestone 1 makes their data and transition boundaries executable as strict contracts; Milestone 2 must implement and prove the runtime behavior.
+These are executable simulation invariants. Milestones 2 and 3 implement and test their runtime and planner boundaries.
 
 1. **No model-to-actuator path.** Model output is untrusted proposed data.
 2. **Least authority.** Every adapter exposes typed, versioned, allowlisted capabilities.
@@ -128,7 +129,7 @@ The first target scenario is:
 
 > **Prepare my environment for arrival in five minutes.**
 
-The future deterministic simulator will coordinate vehicle trajectory, garage state, charger readiness, room conditioning, media readiness, energy constraints, and weather context.
+The deterministic simulator coordinates destination confidence, garage state, charger readiness, room conditioning, media readiness, and energy constraints.
 
 The architecture is not demonstrated by a single happy path. The approved scenario suite must cover:
 
@@ -142,7 +143,7 @@ The architecture is not demonstrated by a single happy path. The approved scenar
 | Partial failure | The trace reports partial success, failure, or compensation—never false success |
 | Malicious external text | Untrusted content cannot create an undeclared capability |
 
-All six named reference fixtures are committed and schema-validated. Their expected results are test vectors for the future deterministic runtime, not observed runtime results.
+All six named fixtures are committed, schema-validated, executed through the deterministic runtime, and compared against policy, dispatch, terminal-state, and verification expectations.
 
 ## Current implementation status
 
@@ -155,29 +156,32 @@ All six named reference fixtures are committed and schema-validated. Their expec
 | Policy and transition invariants | Implemented at contract layer | Contradictory policy results, R3 authorization, illegal state transitions, cycles, and undeclared references are rejected |
 | Deterministic test clock | Implemented | UTC-only monotonic clock behind a clock port |
 | Reference scenario fixtures | Implemented | Six self-contained simulation-only YAML fixtures with deterministic expected outcomes |
-| Deterministic runtime and simulator | Not implemented | Specified for Milestone 2 |
-| Gemini planner adapter | Not implemented | Dependency boundary reserved; implementation deferred to Milestone 3 |
-| Operator interface | Not implemented | Thin local FastAPI/web boundary specified for Milestone 4 |
-| Supermemory demonstration | Not implemented | Optional and outside the critical path; deferred to Milestone 5 |
-| Home Assistant integration | Not implemented | Read-only shadow integration considered only after the simulator baseline |
+| Deterministic runtime and simulator | Implemented | World model, registry, policy kernel, approval binding, state machine, verifier, retries, duplicate suppression, and six executable scenarios |
+| Operational ledger | Implemented | Ordered append-only in-memory and transactional SQLite repositories |
+| Gemini planner adapter | Implemented and optional | Minimized prompt, Pydantic structured output, trusted binding checks, no tools, deterministic fallback |
+| Planner evaluation | Implemented | Configuration, schema validity, hallucinations, parameters, preconditions, policy result, latency, and token usage |
+| Memory boundary | Implemented without provider | Context-only port and no-op adapter preserve provider-disabled behavior |
+| Operator interface | Not implemented | Streamlit operator surface is the remaining Milestone 4 work |
+| Supermemory demonstration | Designed, not implemented | Milestone 4 uses bounded read-only context outside authority, execution, and verification |
+| Home Assistant integration | Post-hackathon | Not part of the M4 completion line |
 | Real device actuation | Prohibited | No real actuation in the prototype |
 
-The package version is `0.1.0` to identify the completed contract milestone. There is currently no application server, command-line interface, demo runner, or supported end-user workflow.
+The package version is `0.3.0`. The deterministic demo and planner-evaluation runners are supported engineering workflows; the public operator application arrives in Milestone 4.
 
 ## Autonomy modes
 
 | Mode | State source | Planning | Execution | Status |
 |---|---|---|---|---|
-| Simulation | Deterministic simulated state | Yes | Simulated actions only | Required prototype baseline |
+| Simulation | Deterministic simulated state | Yes | Simulated actions only | **Implemented** |
 | Shadow | Live read-only state | Yes | None | Architecture-ready; optional demonstration |
 | Supervised | Live state | Yes | Only after explicit approval | Post-prototype |
 | Live bounded | Live state | Yes | Allowlisted low-risk actions | Post-security review |
 
-Simulation support itself is not implemented yet. This table defines the approved progression of authority.
+No mode performs real actuation. Shadow, supervised, and live-bounded modes remain post-hackathon work.
 
 ## Repository structure
 
-The current repository is intentionally smaller than the target runtime architecture:
+The repository now contains the complete non-UI hackathon core:
 
 ```text
 handsoff/
@@ -193,29 +197,38 @@ handsoff/
 │   ├── privacy-boundaries.md
 │   ├── threat-model.md
 │   ├── verification-plan.md
+│   ├── streamlit-deployment.md
 │   └── adr/
 │       ├── 0001-modular-monolith.md
 │       ├── 0002-model-is-not-controller.md
-│       └── 0003-simulator-first.md
+│       ├── 0003-simulator-first.md
+│       └── 0004-streamlit-hackathon-interface.md
 ├── scripts/
 │   ├── check_docs.py
 │   ├── check_repository.py
 │   ├── check_secrets.py
+│   ├── evaluate_planner.py
+│   ├── run_demo.py
 │   └── validate.py
 ├── src/handsoff/
-│   ├── adapters/clock/
-│   │   └── deterministic.py        # Explicitly advanced UTC test clock
+│   ├── adapters/
+│   │   ├── clock/                  # Deterministic test time
+│   │   ├── devices/simulator/      # Scripted effects; no real devices
+│   │   ├── memory/                 # Provider-disabled no-op adapter
+│   │   ├── persistence/            # In-memory and SQLite ledgers
+│   │   └── planner/                # Fixture, Gemini, and fallback planners
+│   ├── application/                # Policy, execution, verification, scenarios
 │   ├── domain/
 │   │   ├── capabilities.py
 │   │   ├── events.py
 │   │   ├── execution.py
 │   │   ├── goals.py
 │   │   ├── observations.py
+│   │   ├── planning.py
 │   │   ├── plans.py
 │   │   ├── policies.py
 │   │   └── scenarios.py
-│   ├── ports/
-│   │   └── clock.py
+│   ├── ports/                      # Planner, memory, adapter, ledger, and clock
 │   ├── __init__.py
 │   └── py.typed
 ├── scenarios/
@@ -228,12 +241,14 @@ handsoff/
 └── tests/
     ├── contract/
     ├── fixtures/
+    ├── integration/
     ├── property/
+    ├── scenarios/
     ├── unit/
     └── test_foundation.py
 ```
 
-Application services, device/model/persistence/memory adapters, API, simulator behavior, and web paths will be added only when their corresponding milestones are authorized. The complete target layout is maintained in [Architecture](docs/architecture.md).
+The deferred Streamlit entrypoint and presentation package are specified in the [deployment plan](docs/streamlit-deployment.md).
 
 ## Getting started
 
@@ -260,10 +275,26 @@ To reproduce the environment used by the complete validation suite, including th
 uv sync --frozen --all-extras
 ```
 
-No credential is required for Milestone 1. `.env.example` contains names and empty values only. Do not add real credentials to fixtures, prompts, logs, screenshots, tests, or version control.
+No credential is required for deterministic execution, replay, evaluation, or validation. `.env.example` contains names and empty values only. Do not add real credentials to fixtures, prompts, logs, screenshots, tests, or version control.
+
+### Run the deterministic demonstration
+
+```bash
+uv run --frozen python scripts/run_demo.py
+```
+
+This executes all six fixtures and reports measured policy decision, terminal state, and ledger-event count. It performs no network call and requires no credential.
+
+### Run the offline planner evaluation
+
+```bash
+uv run --frozen python scripts/evaluate_planner.py
+```
+
+This emits JSON Lines evaluation records for the deterministic baseline. Live Gemini evaluation is intentionally opt-in and is never part of repository validation.
 
 > [!NOTE]
-> There is no application to launch at Milestone 1. A successful installation and test run prove the contract surface and fixtures can be reproduced; they do not prove runtime behavior.
+> The Streamlit application does not exist yet. Milestone 4 will expose these same application services without moving policy or execution logic into the UI.
 
 ## Validation
 
@@ -298,15 +329,23 @@ The deterministic core must remain installable and testable without Gemini, Supe
 ### Declared runtime foundation
 
 - `pydantic` — strict schemas at trust boundaries
-- `fastapi` and `uvicorn` — future thin local API and process boundary
-- `sqlalchemy` and `alembic` — future local SQLite persistence and explicit migrations
-- `httpx` — external adapter transport and test client
-- `pyyaml` — future human-readable deterministic scenario fixtures
+- `sqlalchemy` and `alembic` — local SQLite persistence boundary and migration tooling
+- `httpx` — bounded external-adapter transport
+- `pyyaml` — human-readable deterministic scenario fixtures
 
 ### Optional integration boundary
 
-- `google-genai` is isolated in the `planner-gemini` extra. Declaring the dependency does not implement or enable the adapter.
-- No Supermemory or Home Assistant dependency has been selected.
+- `google-genai` is isolated in the `planner-gemini` extra. The adapter is implemented but never enabled implicitly.
+- Streamlit and Supermemory dependencies will be selected and locked with their Milestone 4 implementations.
+- No Home Assistant dependency has been selected.
+
+## Streamlit and Supermemory path
+
+Milestone 4 is a single-process Streamlit application over the existing typed application services. It will support three visible modes: deterministic baseline, optional Gemini planning, and optional read-only Supermemory context comparison. The core remains complete when both providers are disabled.
+
+The public demo will use one fixed server-configured, demo-only Supermemory scope; retrieve at most five hybrid-search results; normalize and truncate each result; label it untrusted; and pass it only to planner context. Browser users cannot select container tags or write shared memory. Provider keys remain in Streamlit Community Cloud secrets, never in Git or session output.
+
+The full process, session-isolation requirements, secret placeholders, packaging plan, and acceptance criteria are in [Streamlit and Supermemory deployment](docs/streamlit-deployment.md).
 
 ### Explicit exclusions
 
@@ -318,13 +357,11 @@ The prototype core does not use LangChain, a general agent framework, Celery, Re
 |---|---|---|
 | **M0 — Repository foundation** | Git, Python project, lockfile, documentation, ADRs, and local quality gates | **Complete** |
 | **M1 — Contracts and deterministic tests** | Domain vocabulary, strict schemas, test clock, scenario schema, six fixtures, and fail-first invariant tests | **Complete** |
-| **M2 — Deterministic runtime** | World model, capability registry, policy kernel, state machine, verifier, ledger, and simulator | Not started |
-| **M3 — Gemini planner** | Minimized prompts, structured plan proposals, deterministic fallback, and model evaluation | Not started |
-| **M4 — Operator interface** | World state, proposed plan, policy reasons, approval boundary, execution timeline, and replay | Not started |
-| **M5 — Optional Supermemory demonstration** | Long-horizon preference context outside authority, execution, and verification | Not started |
-| **M6 — Shadow integration** | Read-only Home Assistant discovery and events, if justified | Not started |
+| **M2 — Deterministic runtime** | World model, capability registry, policy kernel, state machine, verifier, ledger, simulator, and executable scenarios | **Complete** |
+| **M3 — Contained planner** | Minimized Gemini structured output, trusted binding checks, deterministic fallback, optional memory port, and model evaluation | **Complete** |
+| **M4 — Hackathon application** | Streamlit world/plan/policy/approval/timeline/replay UI plus optional read-only Supermemory context comparison | Remaining |
 
-Milestone sequencing is intentional. Provider integrations do not precede the deterministic contracts and simulator.
+Milestone 4 is the hackathon completion line. Home Assistant shadow integration, live telemetry, and any real-device work are post-hackathon extensions rather than additional committed milestones.
 
 ## Engineering documentation
 
@@ -335,12 +372,14 @@ Milestone sequencing is intentional. Provider integrations do not precede the de
 | [Privacy boundaries](docs/privacy-boundaries.md) | Data zones, credential handling, external-provider disclosure, and residual privacy risk |
 | [Threat model](docs/threat-model.md) | Assets, adversaries, abuse paths, controls, risk classes, and residual risk |
 | [Verification plan](docs/verification-plan.md) | Evidence standard, current gates, future test hierarchy, and prototype acceptance criteria |
+| [Streamlit deployment](docs/streamlit-deployment.md) | M4 process, Supermemory boundary, session isolation, secrets, packaging, and acceptance |
 | [ADR 0001](docs/adr/0001-modular-monolith.md) | Modular monolith with hexagonal boundaries |
 | [ADR 0002](docs/adr/0002-model-is-not-controller.md) | Model planning without model authority |
 | [ADR 0003](docs/adr/0003-simulator-first.md) | Deterministic simulation before live integration |
+| [ADR 0004](docs/adr/0004-streamlit-hackathon-interface.md) | Streamlit hackathon surface and consolidation of the optional memory demo |
 | [AGENTS.md](AGENTS.md) | Repository-specific engineering, review, security, and validation agreement |
 
-Architecture decisions 1–10 were approved on 2026-07-13. Changes to those decisions require explicit review and a new or superseding ADR.
+Architecture decisions 1–10 were approved on 2026-07-13. Vedang explicitly revised the hackathon interface and completion line on the same date; ADR 0004 records the Streamlit decision and supersedes only the FastAPI-specific portion of decision 9.
 
 ## Security and privacy
 

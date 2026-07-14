@@ -85,6 +85,18 @@ def test_verification_result_accepts_unique_evidence() -> None:
     assert result.satisfied
 
 
+def test_verification_result_accepts_empty_evidence_for_missing_state() -> None:
+    """A failed missing-observation check does not invent evidence."""
+    result = VerificationResult(
+        condition_id="condition.ready",
+        satisfied=False,
+        observation_ids=(),
+        evaluated_at=NOW,
+        reason="Required observation is missing",
+    )
+    assert result.observation_ids == ()
+
+
 def test_verification_result_rejects_duplicate_evidence() -> None:
     """Evidence identifiers cannot be duplicated to inflate a trace."""
     with pytest.raises(ValidationError, match="must be unique"):

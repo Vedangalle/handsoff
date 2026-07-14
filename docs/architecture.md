@@ -12,7 +12,7 @@ Vedang Alle approved architecture decisions 1–10 on 2026-07-13:
 6. Gemini may propose typed plans but cannot execute actions.
 7. The deterministic simulator comes first; Home Assistant is read-only later.
 8. Supermemory is optional and outside the critical execution path.
-9. A thin local web interface uses FastAPI and contains no domain logic.
+9. The original thin FastAPI interface decision is superseded for the hackathon by the Streamlit operator surface in [ADR 0004](adr/0004-streamlit-hackathon-interface.md); presentation still contains no domain logic.
 10. R3 actions are prohibited, with no real actuation in the prototype.
 
 These decisions are constraints. Changes require a new approved architectural decision.
@@ -21,11 +21,11 @@ These decisions are constraints. Changes require a new approved architectural de
 
 The target is one deployable process with explicit hexagonal boundaries:
 
-- domain logic imports no FastAPI, database, Gemini, Home Assistant, or Supermemory implementation;
+- domain logic imports no Streamlit, database, Gemini, Home Assistant, or Supermemory implementation;
 - application services orchestrate domain operations through ports;
 - adapters implement models, persistence, devices, time, and optional memory;
 - one process owns the execution state machine during the prototype; and
-- the user interface communicates through a typed local API.
+- the user interface communicates through a typed in-process application facade.
 
 This is a modular monolith, not a distributed system, general robotics platform, or live hardware controller.
 
@@ -33,8 +33,8 @@ This is a modular monolith, not a distributed system, general robotics platform,
 
 ```mermaid
 flowchart LR
-    U["User objective"] --> API["Local API"]
-    API --> GC["Goal compiler"]
+    U["User objective"] --> UI["Future Streamlit interface"]
+    UI --> GC["Typed goal compiler"]
     WS["Timestamped world state"] --> GC
     CR["Capability registry"] --> GC
     PM["Optional preference context"] -.-> GC
@@ -59,6 +59,7 @@ No model output grants authority. An adapter success response proves command acc
 ```mermaid
 flowchart TB
     subgraph LocalTrusted["Local trusted computing boundary"]
+        GC["Goal compiler"]
         PK["Policy kernel"]
         EX["Executor"]
         DB["SQLite state and ledger"]
@@ -74,15 +75,16 @@ flowchart TB
         SM["Optional Supermemory"]
         HA["Future Home Assistant instance"]
     end
-    UI --> PK
+    UI --> GC
     DEV --> PK
     CFG --> PK
-    PK --> GEM
-    SM -.-> PK
+    GC --> GEM
+    GEM --> GC
+    SM -.-> GC
+    GC --> PK
     PK --> EX
     EX --> HA
     SEC --> EX
-    GEM --> PK
     HA --> DEV
 ```
 
@@ -112,7 +114,7 @@ Mode is explicit configuration included in every trace. It is never inferred fro
 
 ## Target repository structure
 
-The approved end-state structure is incremental. Milestone 0 created documentation, package metadata, validation scripts, and the package boundary. Milestone 1 adds strict domain contracts, the clock port and deterministic clock adapter, scenario fixtures, and contract-focused tests. Later runtime paths are created only when their milestones are authorized.
+The repository is incremental. Milestones 0–1 established the foundation and contracts. Milestone 2 implemented the deterministic runtime and Milestone 3 added contained planning adapters and evaluation. Only the Streamlit presentation surface remains for the hackathon.
 
 ```text
 handsoff/
@@ -139,24 +141,28 @@ handsoff/
 │   │   ├── policies.py
 │   │   ├── execution.py
 │   │   ├── events.py
-│   │   └── scenarios.py
+│   │   ├── scenarios.py
+│   │   └── planning.py
 │   ├── application/
-│   ├── ports/clock.py
+│   ├── ports/
 │   ├── adapters/
-│   │   └── clock/deterministic.py
-│   ├── api/
-│   └── config.py
-├── web/
+│   │   ├── planner/
+│   │   ├── devices/simulator/
+│   │   ├── persistence/
+│   │   ├── memory/
+│   │   └── clock/
+│   └── presentation/              # Milestone 4 only
+├── streamlit_app.py               # Milestone 4 only
 ├── scenarios/
 ├── tests/
 └── scripts/
 ```
 
-The proposal included a `LICENSE` path. It is intentionally absent until Vedang selects a license. Application services, runtime adapters, the demo runner, API, and web directories remain deferred beyond Milestone 1.
+The proposal included a `LICENSE` path. It is intentionally absent until Vedang selects a license. The Streamlit entrypoint, presentation package, and deployment requirements remain deferred to Milestone 4.
 
 ## Dependency boundaries
 
-Core declarations are `pydantic`, `fastapi`, `uvicorn`, `sqlalchemy`, `alembic`, `httpx`, and `pyyaml`. Their presence establishes reproducible interfaces but does not authorize runtime implementation. `google-genai` is an optional `planner-gemini` extra. No Supermemory or Home Assistant package is selected because those adapters are deferred and provider interfaces have not been evaluated.
+The deterministic runtime uses `pydantic`, `sqlalchemy`, `alembic`, `httpx`, and `pyyaml`. `google-genai` is isolated in the optional `planner-gemini` extra. Streamlit and Supermemory dependencies remain unselected until their Milestone 4 adapters are implemented and locked. FastAPI and Uvicorn were removed after ADR 0004 eliminated the unused hackathon API process.
 
 No agent framework, message broker, container orchestrator, vector database, embedded policy DSL, or direct Matter implementation belongs in the prototype core.
 
@@ -165,19 +171,20 @@ No agent framework, message broker, container orchestrator, vector database, emb
 - No `utils.py` dumping ground.
 - No device-specific logic in domain or application packages.
 - No model SDK objects outside the Gemini adapter.
-- No database models passed through API routes.
+- No database models passed into presentation code.
 - No UI logic in the executor.
 - No runtime-generated data under version control.
 - No credentials in fixtures, prompts, logs, screenshots, traces, or test output.
 
 ## Current implementation boundary
 
-Milestone 1 implements the contract layer, not the runtime:
+Milestone 3 completes the non-UI hackathon core:
 
-- immutable strict schemas for goals, acceptance conditions, observations, capabilities, plans, policy results, approvals, plan/action transitions, verification results, ledger events, and scenarios;
-- schema-level rejection of unknown fields, non-UTC timestamps, invalid risk/authority combinations, R3 authorization, inconsistent aggregate policy results, illegal transitions, plan cycles, contradictory expectations, and undeclared scenario references;
-- a clock port and monotonic deterministic UTC test clock;
-- six self-contained, simulation-only reference fixtures; and
-- unit, property, and contract tests for these boundaries.
+- strict immutable contracts and provider-independent ports;
+- normalized world state, capability registry, deterministic condition and policy evaluation, approval binding, execution state machine, independent verifier, duplicate suppression, bounded retries, and append-only in-memory/SQLite ledgers;
+- a deterministic fixture planner and scripted simulator that reproduce all six reference scenarios without credentials or network access;
+- a Gemini adapter using minimized JSON context and Pydantic structured output, with no tools or actuator access;
+- deterministic fallback and model-evaluation records for schema validity, hallucinated capabilities, invalid parameters, missing preconditions, policy result, latency, and token usage; and
+- a context-only memory port plus no-op adapter so the core remains complete without Supermemory.
 
-No service evaluates policy, advances an execution state machine, dispatches a capability, mutates world state, persists an event, verifies an outcome, serves an API, or contacts an external provider. Those behaviors remain Milestone 2 or later.
+No Streamlit application, Supermemory provider adapter, Home Assistant integration, shadow state, live device actuation, or real household data exists. Milestone 4 adds only the hackathon presentation and optional read-only Supermemory context demonstration described in [the deployment plan](streamlit-deployment.md).
