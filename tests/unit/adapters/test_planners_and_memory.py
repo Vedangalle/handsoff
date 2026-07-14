@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 import pytest
 
-from handsoff.adapters.memory import NoopMemoryProvider
+from handsoff.adapters.memory import NoopMemoryProvider, SyntheticMemoryProvider
 from handsoff.adapters.planner.deterministic import DeterministicPlanner
 from handsoff.adapters.planner.fallback import FallbackPlanner
 from handsoff.adapters.planner.gemini import (
@@ -40,6 +40,7 @@ from tests.fixtures.contracts import (
 )
 
 MEMORY_LIMIT = 5
+SYNTHETIC_TEST_LIMIT = 2
 CONTEXT_CHARACTER_LIMIT = 500
 FAKE_INPUT_TOKENS = 11
 FAKE_OUTPUT_TOKENS = 7
@@ -206,6 +207,17 @@ def test_goal_compiler_bounds_and_normalizes_untrusted_memory() -> None:
 def test_noop_memory_returns_no_context() -> None:
     """Provider-disabled operation performs no external work."""
     assert NoopMemoryProvider().retrieve("query", "scope", 5) == ()
+
+
+def test_synthetic_memory_is_bounded_and_credential_free() -> None:
+    """The offline memory lab returns fixed local records through the memory port."""
+    provider = SyntheticMemoryProvider()
+    items = provider.retrieve("prepare arrival", "scope.demo", SYNTHETIC_TEST_LIMIT)
+    assert len(items) == SYNTHETIC_TEST_LIMIT
+    assert all(item.source_id.startswith("synthetic.") for item in items)
+    assert provider.retrieve("ignored", "scope.demo", 0) == ()
+    with pytest.raises(ValueError, match="cannot be negative"):
+        provider.retrieve("ignored", "scope.demo", -1)
 
 
 def test_minimized_prompt_excludes_provenance_and_prohibited_capabilities() -> None:

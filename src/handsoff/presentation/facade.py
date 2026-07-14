@@ -13,6 +13,7 @@ from handsoff.adapters.memory import (
     NoopMemoryProvider,
     ResilientMemoryProvider,
     SupermemoryMemoryProvider,
+    SyntheticMemoryProvider,
 )
 from handsoff.adapters.persistence.memory import InMemoryLedger
 from handsoff.adapters.planner import DeterministicPlanner, FallbackPlanner, GeminiPlanner
@@ -33,6 +34,7 @@ class DemoMode(StrEnum):
     """Explicit provider combinations available to a public browser session."""
 
     DETERMINISTIC = "deterministic"
+    SYNTHETIC_MEMORY = "synthetic_memory"
     GEMINI = "gemini"
     GEMINI_SUPERMEMORY = "gemini_supermemory"
 
@@ -41,6 +43,7 @@ class DemoMode(StrEnum):
         """Return a concise operator-facing mode name."""
         return {
             DemoMode.DETERMINISTIC: "Deterministic baseline",
+            DemoMode.SYNTHETIC_MEMORY: "Offline memory lab",
             DemoMode.GEMINI: "Gemini planner",
             DemoMode.GEMINI_SUPERMEMORY: "Gemini + Supermemory context",
         }[self]
@@ -114,13 +117,17 @@ class DemoFacade:
             for scenario in self._scenarios.values()
         )
 
-    def run(self, scenario_id: str, mode: DemoMode) -> DemoRun:
-        """Execute one scenario with fresh per-run adapters, world, and ledger."""
+    def scenario(self, scenario_id: str) -> ScenarioDefinition:
+        """Return one committed scenario contract for presentation-only framing."""
         try:
-            scenario = self._scenarios[scenario_id]
+            return self._scenarios[scenario_id]
         except KeyError as error:
             message = "scenario is not in the committed allowlist"
             raise ValueError(message) from error
+
+    def run(self, scenario_id: str, mode: DemoMode) -> DemoRun:
+        """Execute one scenario with fresh per-run adapters, world, and ledger."""
+        scenario = self.scenario(scenario_id)
 
         planner, close_planner = self._planner(mode)
         memory, reporter = self._memory(mode)
@@ -159,7 +166,7 @@ class DemoFacade:
     def _planner(self, mode: DemoMode) -> tuple[Planner, Callable[[], None] | None]:
         """Compose deterministic or contained Gemini planning with fallback."""
         fallback = DeterministicPlanner()
-        if mode is DemoMode.DETERMINISTIC:
+        if mode in {DemoMode.DETERMINISTIC, DemoMode.SYNTHETIC_MEMORY}:
             return fallback, None
         if not self._settings.google_api_key:
             return FallbackPlanner(_UnavailablePlanner(), fallback), None
@@ -173,6 +180,13 @@ class DemoFacade:
     ) -> tuple[NoopMemoryProvider | ResilientMemoryProvider, ResilientMemoryProvider | None]:
         """Compose fixed-scope read-only memory or a provider-disabled adapter."""
         fallback = NoopMemoryProvider()
+        if mode is DemoMode.SYNTHETIC_MEMORY:
+            provider = ResilientMemoryProvider(
+                SyntheticMemoryProvider(),
+                fallback,
+                "synthetic",
+            )
+            return provider, provider
         if mode is not DemoMode.GEMINI_SUPERMEMORY:
             return fallback, None
         primary = (

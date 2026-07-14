@@ -160,8 +160,8 @@ All six named fixtures are committed, schema-validated, executed through the det
 | Operational ledger | Implemented | Ordered append-only in-memory and transactional SQLite repositories |
 | Gemini planner adapter | Implemented and optional | Minimized prompt, Pydantic structured output, trusted binding checks, no tools, deterministic fallback |
 | Planner evaluation | Implemented | Configuration, schema validity, hallucinations, parameters, preconditions, policy result, latency, and token usage |
-| Memory boundary | Implemented and optional | Context-only port, no-op adapter, read-only Supermemory search, fixed scope, five-result limit, normalization, and fail-closed fallback |
-| Operator interface | Implemented | Streamlit exposes scenario selection, provider mode, world evidence, proposal, policy, transitions, verification, ledger, and memory trust boundary |
+| Memory boundary | Implemented and optional | Context-only port, no-op and synthetic adapters, read-only Supermemory search, fixed scope, five-result limit, normalization, and fail-closed fallback |
+| Operator interface | Implemented | Original responsive Streamlit mission control with narrative outcome, proposal, policy, transitions, verification, ledger, and memory evidence views |
 | Supermemory demonstration | Implemented and optional | Hybrid retrieval supplies bounded untrusted planner context; no writes or authority path exist |
 | Home Assistant integration | Post-hackathon | Not part of the M4 completion line |
 | Real device actuation | Prohibited | No real actuation in the prototype |
@@ -217,7 +217,7 @@ handsoff/
 │   ├── adapters/
 │   │   ├── clock/                  # Deterministic test time
 │   │   ├── devices/simulator/      # Scripted effects; no real devices
-│   │   ├── memory/                 # No-op, Supermemory, and fail-closed adapters
+│   │   ├── memory/                 # No-op, synthetic, Supermemory, and fail-closed adapters
 │   │   ├── persistence/            # In-memory and SQLite ledgers
 │   │   └── planner/                # Fixture, Gemini, and fallback planners
 │   ├── application/                # Policy, execution, verification, scenarios
@@ -306,7 +306,9 @@ uv sync --frozen --all-extras
 uv run --frozen --all-extras streamlit run streamlit_app.py
 ```
 
-Open the local URL printed by Streamlit. Deterministic mode requires no credential and performs no network call. Select any committed scenario, choose a planner mode, and inspect the world evidence, typed proposal, policy reasons, state transitions, outcome verification, ordered ledger, and memory trust boundary.
+Open the local URL printed by Streamlit. The default **Offline memory lab** is the complete, presentation-ready path: it requires no credential, makes no network call, and supplies clearly labeled synthetic preference records through the same bounded memory port. Select any committed mission and inspect the goal-to-evidence pipeline, typed proposal, policy reasons, state transitions, outcome verification, ordered ledger, and memory trust boundary.
+
+The synthetic mode is deliberately honest about what it proves. It demonstrates context retrieval, normalization, planner containment, and the authority boundary; it does not claim that a live Supermemory request occurred. Deterministic baseline also remains fully offline. Live Gemini and Supermemory modes are optional comparisons for deployments with newly issued server-side credentials.
 
 Optional local provider configuration belongs in ignored `.streamlit/secrets.toml`:
 
@@ -363,7 +365,7 @@ The deterministic core must remain installable and testable without Gemini, Supe
 
 ## Streamlit and Supermemory path
 
-Milestone 4 is a single-process Streamlit application over typed application services. It supports three visible modes: deterministic baseline, optional Gemini planning, and optional Gemini plus read-only Supermemory context. The core remains complete when both providers are disabled.
+Milestone 4 is a single-process Streamlit application over typed application services. It supports four visible modes: deterministic baseline, an offline synthetic-memory lab, optional Gemini planning, and optional Gemini plus read-only Supermemory context. The core and the complete visual demonstration remain functional when both external providers are disabled.
 
 The public demo uses one fixed server-configured, demo-only Supermemory scope; retrieves at most five hybrid-search results; normalizes and truncates each result; labels it untrusted; and passes it only to planner context. Browser users cannot select container tags or write shared memory. Provider keys remain in Streamlit Community Cloud secrets, never in Git or session output.
 

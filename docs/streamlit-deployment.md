@@ -15,6 +15,7 @@ flowchart LR
     MP --> DP["Deterministic planner"]
     MP -. "optional" .-> GM["Gemini adapter"]
     MM --> NM["No-op memory"]
+    MM --> SY["Synthetic local context"]
     MM -. "optional read-only" .-> SM["Supermemory adapter"]
     AF --> PK["Deterministic policy and executor"]
     PK --> SIM["Scenario simulator"]
@@ -28,10 +29,17 @@ Streamlit is a presentation adapter. It does not import provider SDK objects int
 | Mode | Gemini | Supermemory | Required credentials | Purpose |
 |---|---:|---:|---|---|
 | Deterministic baseline | Off | Off | None | Reproducible reference and fallback |
+| Offline memory lab | Off | Synthetic local records | None | Complete no-key context and trust-boundary demonstration |
 | Model planner | On | Off | `GOOGLE_API_KEY` | Compare Gemini proposals with the same policy/runtime |
 | Context comparison | On or off | On | `SUPERMEMORY_API_KEY` and optionally `GOOGLE_API_KEY` | Show how bounded preference context changes a proposal, never authority |
 
-The interface must make the active mode and every external-provider boundary visible. Provider failure falls back to deterministic planning or no memory; it never weakens policy.
+The interface makes the active mode and every external-provider boundary visible. Synthetic records are committed fixtures labeled `OFFLINE / SYNTHETIC`; they never imply a live provider call. Provider failure falls back to deterministic planning or no memory; it never weakens policy.
+
+## Credential-free demonstration
+
+The default public experience is the offline memory lab. It returns three bounded, deterministic preference records through `SyntheticMemoryProvider`, then executes the same planner, policy, simulator, verifier, and ledger used by every other mode. It is intended for local judging, screenshots, and deployments where provider credentials are unavailable.
+
+Synthetic context can influence only `PlannerRequest.preference_context`. The deterministic planner intentionally ignores preference context, so the offline lab demonstrates retrieval and containment rather than claiming model personalization. A live proposal comparison requires an explicitly configured Gemini planner. This distinction is rendered in the interface.
 
 ## Supermemory retrieval contract
 
@@ -91,7 +99,7 @@ Deployment selects `main`, `streamlit_app.py`, and Python 3.12. Provider values 
 
 - All six scenarios are selectable and replayable.
 - World state, proposal, policy reasons, approval boundary, action transitions, verification evidence, and ledger sequence are visible.
-- Deterministic mode runs with no secrets and no network.
+- Deterministic and offline-memory modes run with no secrets and no network.
 - Gemini invalid output or unavailability visibly falls back without side effects.
 - Supermemory on/off comparison uses the same goal, capabilities, policy, and simulator.
 - A malicious memory string cannot introduce an undeclared capability or affect authority.
@@ -107,7 +115,7 @@ uv sync --frozen --all-extras
 uv run --frozen --all-extras streamlit run streamlit_app.py
 ```
 
-The deterministic baseline is complete without `.streamlit/secrets.toml`. For optional providers, create that ignored file locally using the empty names in `.env.example`, or configure those names in Streamlit Community Cloud Advanced settings. Values are passed directly to adapter constructors and never rendered.
+The default offline memory lab and deterministic baseline are complete without `.streamlit/secrets.toml`. For optional live providers, create that ignored file locally using the empty names in `.env.example`, or configure those names in Streamlit Community Cloud Advanced settings. Use newly issued credentials only. Values are passed directly to adapter constructors and never rendered.
 
 ## Deployment procedure
 

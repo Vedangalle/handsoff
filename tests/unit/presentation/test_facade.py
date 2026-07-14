@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[3]
 SCENARIOS = ROOT / "scenarios"
 SCENARIO_COUNT = 6
 MEMORY_LIMIT = 5
+SYNTHETIC_MEMORY_COUNT = 3
 
 
 class StaticSupermemory:
@@ -106,6 +107,19 @@ def test_missing_gemini_configuration_visibly_uses_deterministic_fallback() -> N
     assert run.assessment.matched
     assert run.assessment.runtime.planner.used_fallback
     assert run.assessment.runtime.planner.provider == "deterministic"
+
+
+def test_offline_memory_lab_supplies_synthetic_context_without_fallback() -> None:
+    """The default rich demonstration needs neither provider nor network access."""
+    facade = DemoFacade(DemoSettings(), SCENARIOS)
+    scenario_id = "scenario.nominal-arrival"
+    run = facade.run(scenario_id, DemoMode.SYNTHETIC_MEMORY)
+    assert run.assessment.matched
+    assert run.memory.provider == "synthetic"
+    assert not run.memory.used_fallback
+    assert len(run.memory.items) == SYNTHETIC_MEMORY_COUNT
+    assert not run.assessment.runtime.planner.used_fallback
+    assert facade.scenario(scenario_id) is run.scenario
 
 
 def test_configured_gemini_transport_is_used_and_closed() -> None:

@@ -6,6 +6,7 @@ from handsoff.adapters.memory.supermemory import (
     HttpxSupermemoryTransport,
     SupermemoryMemoryProvider,
 )
+from handsoff.adapters.memory.synthetic import SyntheticMemoryProvider
 
 __all__ = [
     "HttpxSupermemoryTransport",
@@ -13,4 +14,5 @@ __all__ = [
     "NoopMemoryProvider",
     "ResilientMemoryProvider",
     "SupermemoryMemoryProvider",
+    "SyntheticMemoryProvider",
 ]
