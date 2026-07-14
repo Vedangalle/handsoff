@@ -61,9 +61,10 @@ The suite verifies:
 - Supermemory search uses a fixed server scope, hybrid mode, limit five, bounded normalized output, no write method, and empty-context fallback;
 - malicious memory cannot introduce an undeclared capability or change the trusted-input fingerprint;
 - every committed scenario is selectable and reproducible through the typed facade;
-- browser-session objects do not share mutable results and reset reconstructs deterministic evidence; and
+- browser-session objects do not share mutable results and reset reconstructs deterministic evidence;
 - the Streamlit entrypoint starts without secrets, runs a scenario, exposes every evidence view, and resets through native `AppTest` interaction;
-- the whole-home projection distinguishes staged, verified, policy-blocked, execution-failed, and prohibited device states from typed evidence; and
+- the whole-home projection distinguishes staged, verified, policy-blocked, execution-failed, and prohibited device states from typed evidence;
+- the cinematic layer keeps SVG rotation locally anchored and honors reduced-motion preferences; and
 - the nominal fixture verifies eight coordinated simulated effects while fire and gas ignition remain outside the capability registry.
 
 These checks prove the committed implementation against synthetic fixtures. They do not prove model quality for an untested model version, physical correctness, independent sensor integrity, or production security.

@@ -84,7 +84,7 @@ def _inject_design_system() -> None:
         [data-testid="stToolbar"] { opacity: .55; }
         [data-testid="stMainBlockContainer"] {
             max-width: 1420px;
-            padding: 3.1rem 3.2rem 6rem;
+            padding: 2.15rem 3.2rem 5rem;
         }
 
         [data-testid="stSidebar"] {
@@ -104,9 +104,9 @@ def _inject_design_system() -> None:
 
         h1, h2, h3 { letter-spacing: -.035em; }
         h1 {
-            font-size: clamp(3.7rem, 7vw, 7.2rem) !important;
-            line-height: .9 !important;
-            margin: .25rem 0 .65rem !important;
+            font-size: clamp(3.5rem, 6vw, 6.15rem) !important;
+            line-height: .92 !important;
+            margin: .15rem 0 .55rem !important;
             font-weight: 650 !important;
             background: linear-gradient(105deg, #0b1830 22%, #205fcf 68%, #4d8eff 100%);
             -webkit-background-clip: text;
@@ -124,7 +124,7 @@ def _inject_design_system() -> None:
             font: 700 .71rem/1.1 ui-monospace, SFMono-Regular, Menlo, monospace;
             letter-spacing: .16em;
             text-transform: uppercase;
-            margin-bottom: 1.1rem;
+            margin-bottom: .72rem;
         }
         .ho-kicker::before {
             content: "";
@@ -138,14 +138,14 @@ def _inject_design_system() -> None:
         .ho-deck {
             max-width: 820px;
             color: #4c5e77;
-            font-size: clamp(1.12rem, 2vw, 1.45rem);
-            line-height: 1.55;
-            margin: 0 0 1.55rem;
+            font-size: clamp(1.02rem, 1.65vw, 1.3rem);
+            line-height: 1.48;
+            margin: 0 0 1rem;
         }
         .ho-deck strong { color: var(--ho-text); font-weight: 600; }
         .ho-rule { border-top: 1px solid var(--ho-line); margin: 2.2rem 0; }
 
-        .ho-badge-row { display: flex; flex-wrap: wrap; gap: .55rem; margin: 1.2rem 0 2.3rem; }
+        .ho-badge-row { display: flex; flex-wrap: wrap; gap: .55rem; margin: .8rem 0 1.35rem; }
         .ho-badge {
             display: inline-flex;
             align-items: center;
@@ -171,7 +171,7 @@ def _inject_design_system() -> None:
             padding: .9rem 1rem;
             color: #76511b;
             font-size: .84rem;
-            margin: 1rem 0 2rem;
+            margin: .65rem 0 1.15rem;
             border-radius: 12px;
         }
         .ho-notice b { color: var(--ho-amber); font-family: ui-monospace, monospace; }
@@ -181,8 +181,8 @@ def _inject_design_system() -> None:
             justify-content: space-between;
             align-items: center;
             border-top: 1px solid var(--ho-line);
-            padding: .9rem 0 1.4rem;
-            margin-top: 2.3rem;
+            padding: .8rem 0 1rem;
+            margin-top: 1.35rem;
             color: var(--ho-muted);
             font: 700 .68rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
             letter-spacing: .15em;
@@ -465,15 +465,24 @@ def _render_ecosystem(view: EcosystemView) -> None:
         body {{ margin:0; color:var(--ink); background:transparent; }}
         .ecosystem {{
           position:relative; height:700px; overflow:hidden; border:1px solid var(--line);
-          border-radius:22px; background:linear-gradient(160deg,#fafdff 0%,#edf4ff 62%,#e7eef8 100%);
-          box-shadow:0 24px 70px rgba(35,75,137,.1);
+          border-radius:24px;
+          background:
+            radial-gradient(circle at 82% 18%,rgba(255,255,255,.96) 0 54px,transparent 55px),
+            radial-gradient(circle at 18% 72%,rgba(89,148,255,.1),transparent 240px),
+            linear-gradient(160deg,#fbfdff 0%,#edf5ff 55%,#e4edf8 100%);
+          box-shadow:0 28px 80px rgba(35,75,137,.12),inset 0 1px 0 rgba(255,255,255,.9);
+        }}
+        .ecosystem::before {{
+          content:"";position:absolute;inset:0;pointer-events:none;opacity:.34;
+          background-image:linear-gradient(rgba(35,104,232,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(35,104,232,.035) 1px,transparent 1px);
+          background-size:44px 44px;mask-image:linear-gradient(to bottom,transparent 4%,#000 34%,transparent 92%);
         }}
         .topbar {{
-          position:absolute; z-index:10; top:20px; left:24px; right:24px; display:flex;
+          position:absolute; z-index:12; top:20px; left:24px; right:24px; display:flex;
           align-items:flex-start; justify-content:space-between; gap:20px; pointer-events:none;
         }}
         .eyebrow {{ color:var(--blue); font:800 10px/1 ui-monospace,monospace; letter-spacing:.15em; text-transform:uppercase; }}
-        h1 {{ margin:8px 0 0; font-size:clamp(25px,3.2vw,43px); line-height:1; letter-spacing:-.05em; }}
+        h1 {{ margin:8px 0 0; font-size:clamp(28px,3.4vw,44px); line-height:1; letter-spacing:-.052em; }}
         .mission {{
           display:flex; align-items:center; gap:8px; padding:9px 12px; border:1px solid var(--line);
           border-radius:999px; background:rgba(255,255,255,.8); color:#41516a;
@@ -482,60 +491,88 @@ def _render_ecosystem(view: EcosystemView) -> None:
         }}
         .mission i {{ width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 12px rgba(32,178,107,.58); }}
         .scene {{ position:absolute; inset:0; }}
-        .house-svg {{ width:100%; height:100%; display:block; }}
-        .flow {{ stroke-dasharray:8 12; animation:flow 1.8s linear infinite; }}
-        .scene.staged .flow {{ animation:none; opacity:.24; }}
-        .tv-on, .coffee-steam, .light-glow, .fan-blades, .garage-open {{ opacity:0; }}
-        .media-verified .tv-on {{ opacity:1; animation:screenOn .8s ease-out both; }}
-        .coffee-verified .coffee-steam {{ opacity:1; animation:steam 1.8s ease-in-out infinite; }}
-        .lighting-verified .light-glow {{ opacity:1; animation:glow 2s ease-in-out infinite; }}
-        .fan-verified .fan-blades {{ opacity:1; transform-origin:885px 235px; animation:spin 2.4s linear infinite; }}
-        .garage-verified .garage-closed {{ opacity:0; }}
-        .garage-verified .garage-open {{ opacity:1; }}
+        .house-svg {{ width:100%; height:100%; display:block; filter:saturate(1.04) contrast(1.01); }}
+        .flow {{ opacity:.16;stroke-dasharray:8 12; }}
+        .scene.succeeded .flow {{ opacity:.62;animation:flow 1.7s linear infinite; }}
+        .scene.succeeded .arrival-car {{ animation:driveIn 1.35s cubic-bezier(.2,.8,.2,1) both; }}
+        .tv-on,.coffee-steam,.light-glow,.fan-blades,.garage-open,.ice-cubes,.comfort-wave,.charger-pulse {{ opacity:0; }}
+        .garage-verified .garage-closed {{ animation:doorLift .72s cubic-bezier(.4,0,.2,1) 1.05s both; }}
+        .garage-verified .garage-open {{ animation:reveal .3s ease-out 1.2s both; }}
+        .charger-verified .charger-pulse {{ animation:powerPulse 1.35s ease-in-out 1.65s infinite; }}
+        .climate-verified .comfort-wave {{ animation:comfort 2.4s ease-out 2s infinite; }}
+        .lighting-verified .light-glow {{ animation:glow 2.2s ease-in-out 2.15s infinite,reveal .35s ease-out 2.15s both; }}
+        .light-fixture {{ fill:#d7e0ea; }}
+        .lighting-verified .light-fixture {{ animation:fixtureOn .35s ease-out 2.15s both; }}
+        .fan-verified .fan-blades {{
+          transform-box:fill-box;transform-origin:center;
+          animation:reveal .35s ease-out 2.55s both,spin 2.4s linear 2.55s infinite;
+        }}
+        .ice-verified .ice-cubes {{ animation:iceDrop 1.4s ease-in-out 2.75s infinite,reveal .3s ease-out 2.75s both; }}
+        .coffee-verified .coffee-steam {{ animation:steam 1.8s ease-in-out 3.05s infinite,reveal .3s ease-out 3.05s both; }}
+        .media-verified .tv-on {{ animation:screenOn .85s ease-out 3.35s both; }}
         .device {{
-          position:absolute; z-index:8; display:flex; align-items:center; gap:7px; padding:7px 9px;
+          position:absolute; z-index:9; display:flex; align-items:center; gap:8px; min-height:30px;padding:8px 11px;
           color:#3f506a; background:rgba(255,255,255,.9); border:1px solid rgba(27,70,135,.16);
           border-radius:999px; box-shadow:0 8px 24px rgba(33,71,126,.1); cursor:pointer;
-          font:800 9px/1 ui-monospace,monospace; letter-spacing:.05em; text-transform:uppercase;
+          font:800 10px/1 ui-monospace,monospace; letter-spacing:.05em; text-transform:uppercase;
           transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; white-space:nowrap;
         }}
         .device:hover,.device.active {{ transform:translateY(-2px) scale(1.03); border-color:var(--blue2); box-shadow:0 10px 30px rgba(35,104,232,.2); }}
         .device .dot {{ width:8px; height:8px; border-radius:50%; background:#99a5b7; }}
         .device[data-status="ready"] .dot,.device[data-status="verified"] .dot {{ background:var(--green); box-shadow:0 0 10px rgba(32,178,107,.7); }}
-        .device[data-status="verified"] {{ animation:arrive .65s ease-out both; animation-delay:var(--delay); }}
+        .device[data-status="verified"] {{ animation:arrive .65s ease-out both; animation-delay:calc(.7s + var(--delay)); }}
         .device[data-status="blocked"] .dot,.device[data-status="failed"] .dot {{ background:var(--red); box-shadow:0 0 10px rgba(216,77,91,.5); }}
         .device[data-status="prohibited"] .dot {{ background:var(--amber); }}
-        .vehicle {{ left:4%; top:73%; }} .grid {{ left:8%; top:28%; }} .garage {{ left:25%; top:65%; }}
-        .charger {{ left:39%; top:76%; }} .coffee {{ left:48%; top:59%; }} .ice {{ left:57%; top:43%; }}
-        .climate {{ left:66%; top:29%; }} .lighting {{ left:73%; top:16%; }} .fan {{ left:73%; top:43%; }}
-        .media {{ left:79%; top:61%; }} .fireplace {{ left:86%; top:76%; }}
+        .vehicle {{ left:4%; top:72%; }} .grid {{ left:8%; top:31%; }} .garage {{ left:25%; top:64%; }}
+        .charger {{ left:39%; top:75%; }} .coffee {{ left:48%; top:58%; }} .ice {{ left:57%; top:42%; }}
+        .climate {{ left:66%; top:28%; }} .lighting {{ left:73%; top:15%; }} .fan {{ left:73%; top:42%; }}
+        .media {{ left:79%; top:60%; }} .fireplace {{ left:86%; top:70%; }}
         .inspector {{
-          position:absolute; z-index:9; left:24px; bottom:22px; width:min(410px,42%); min-height:104px;
-          padding:14px 16px; border:1px solid rgba(27,70,135,.16); border-radius:15px;
+          position:absolute; z-index:10; right:22px; bottom:18px; width:min(420px,43%); min-height:112px;
+          padding:14px 16px 12px; border:1px solid rgba(27,70,135,.16); border-radius:16px;
           background:rgba(255,255,255,.9); box-shadow:0 18px 50px rgba(26,62,116,.13); backdrop-filter:blur(14px);
         }}
         .inspector-head {{ display:flex; align-items:center; justify-content:space-between; gap:12px; }}
         .inspector h2 {{ margin:0; font-size:18px; letter-spacing:-.03em; }}
         .state {{ color:var(--green); font:800 9px/1 ui-monospace,monospace; letter-spacing:.1em; text-transform:uppercase; }}
+        .inspector.status-blocked .state,.inspector.status-failed .state {{ color:var(--red); }}
+        .inspector.status-prohibited .state {{ color:var(--amber); }}
         .inspector p {{ margin:8px 0 0; color:var(--muted); font-size:12px; line-height:1.45; }}
         .value {{ color:var(--blue); font-weight:750; }}
+        .sequence {{ display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:10px; }}
+        .sequence span {{
+          position:relative;padding-top:7px;border-top:2px solid #d9e2ef;color:#8b99ac;
+          font:750 7px/1 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;
+        }}
+        .sequence span::before {{ content:"";position:absolute;top:-4px;left:0;width:6px;height:6px;border-radius:50%;background:#b8c4d4; }}
+        .scene.succeeded .sequence span {{ animation:phaseOn .35s ease-out both;animation-delay:calc(.7s + var(--phase)); }}
         .legend {{
-          position:absolute; z-index:7; right:24px; bottom:24px; display:flex; gap:12px; color:#718098;
+          position:absolute; z-index:7; left:24px; bottom:24px; display:flex; gap:12px; color:#718098;
           font:700 8px/1 ui-monospace,monospace; letter-spacing:.08em; text-transform:uppercase;
         }}
         .legend span {{ display:flex; align-items:center; gap:5px; }}
         .legend i {{ width:7px;height:7px;border-radius:50%;background:#99a5b7; }}
         .legend .live {{background:var(--green)}} .legend .stop {{background:var(--red)}} .legend .guard {{background:var(--amber)}}
         @keyframes flow {{ to {{ stroke-dashoffset:-40; }} }}
+        @keyframes driveIn {{ from {{ transform:translateX(-220px);opacity:.2; }} to {{ transform:translateX(0);opacity:1; }} }}
+        @keyframes doorLift {{ to {{ transform:translateY(-96px);opacity:0; }} }}
+        @keyframes reveal {{ from {{ opacity:0; }} to {{ opacity:1; }} }}
+        @keyframes powerPulse {{ 0%,100% {{ opacity:.3;stroke-dashoffset:0; }} 50% {{ opacity:1;stroke-dashoffset:-18; }} }}
+        @keyframes comfort {{ 0% {{ opacity:0;transform:scale(.7); }} 35% {{ opacity:.75; }} 100% {{ opacity:0;transform:scale(1.45); }} }}
+        @keyframes iceDrop {{ 0%,100% {{ transform:translateY(-3px); }} 50% {{ transform:translateY(5px); }} }}
         @keyframes arrive {{ from {{ opacity:0; transform:translateY(8px) scale(.96); }} }}
         @keyframes screenOn {{ from {{ opacity:0; }} 35% {{ opacity:.35; }} 50% {{ opacity:.08; }} to {{ opacity:1; }} }}
         @keyframes steam {{ 0%,100% {{ transform:translateY(2px);opacity:.3; }} 50% {{ transform:translateY(-6px);opacity:1; }} }}
         @keyframes glow {{ 0%,100% {{ opacity:.5; }} 50% {{ opacity:1; }} }}
+        @keyframes fixtureOn {{ from {{ fill:#d7e0ea; }} to {{ fill:#ffd56d; }} }}
         @keyframes spin {{ to {{ transform:rotate(360deg); }} }}
+        @keyframes phaseOn {{ to {{ color:#147d4d;border-color:rgba(32,178,107,.65); }} }}
+        @keyframes phaseOnDot {{ to {{ background:var(--green);box-shadow:0 0 8px rgba(32,178,107,.7); }} }}
+        .scene.succeeded .sequence span::before {{ animation:phaseOnDot .35s ease-out both;animation-delay:calc(.7s + var(--phase)); }}
         @media (max-width:760px) {{
           .ecosystem {{ height:610px; }} .topbar {{ top:16px;left:16px;right:16px; }}
           .house-svg {{ transform:scale(1.18); transform-origin:52% 62%; }}
-          .device {{ font-size:0; padding:7px; }} .inspector {{ left:14px;bottom:14px;width:calc(100% - 28px); }}
+          .device {{ min-height:26px;font-size:0;padding:7px; }} .inspector {{ right:14px;bottom:14px;width:calc(100% - 28px); }}
           .legend {{ display:none; }}
         }}
         @media (prefers-reduced-motion:reduce) {{ * {{ animation:none!important;transition:none!important; }} }}
@@ -551,23 +588,28 @@ def _render_ecosystem(view: EcosystemView) -> None:
             <defs>
               <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e8f1ff"/><stop offset="1" stop-color="#f9fbff"/></linearGradient>
               <linearGradient id="home" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#eef4fd"/></linearGradient>
+              <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eef8ff"/><stop offset=".5" stop-color="#cbe4ff"/><stop offset="1" stop-color="#edf7ff"/></linearGradient>
               <filter id="shadow"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#234c86" flood-opacity=".16"/></filter>
+              <filter id="deep-shadow"><feDropShadow dx="0" dy="22" stdDeviation="20" flood-color="#163660" flood-opacity=".22"/></filter>
               <filter id="soft"><feGaussianBlur stdDeviation="16"/></filter>
             </defs>
             <rect width="1200" height="700" fill="url(#sky)"/>
-            <circle cx="1010" cy="118" r="68" fill="#fff" opacity=".72"/>
+            <circle cx="1010" cy="118" r="68" fill="#fff" opacity=".82"/>
             <path d="M0 548 Q180 510 360 548 T760 548 T1200 532 V700 H0Z" fill="#dce8f4"/>
             <path d="M0 590 L355 540 L550 568 L0 655Z" fill="#c8d5e5"/>
+            <ellipse cx="655" cy="575" rx="370" ry="43" fill="#7794b9" opacity=".14" filter="url(#soft)"/>
             <path class="flow" d="M125 522 C220 470 280 480 340 465 S520 375 610 420 S780 370 920 400" fill="none" stroke="#3d7ff0" stroke-width="3" opacity=".48"/>
-            <g filter="url(#shadow)">
+            <g filter="url(#deep-shadow)">
               <path d="M305 235 L635 92 L1008 236 Z" fill="#173765"/>
               <path d="M342 225 L634 110 L965 225 Z" fill="#2b66bd" opacity=".88"/>
+              <path d="M363 216 L634 120 L944 216" fill="none" stroke="#5e98ee" stroke-width="3" opacity=".6"/>
               <rect x="318" y="226" width="675" height="360" rx="8" fill="url(#home)" stroke="#adc3df"/>
               <rect x="334" y="382" width="260" height="188" rx="4" fill="#e9f0f8" stroke="#bdcde0"/>
               <rect x="610" y="382" width="185" height="188" rx="4" fill="#fff8ef" stroke="#ddcdb9"/>
               <rect x="811" y="382" width="166" height="188" rx="4" fill="#f2f6ff" stroke="#c4d1e5"/>
               <rect x="463" y="244" width="226" height="122" rx="4" fill="#f7f0ff" stroke="#d5c6e4"/>
               <rect x="705" y="244" width="272" height="122" rx="4" fill="#eef7ff" stroke="#c4d9e8"/>
+              <path d="M318 372H993M600 372V586M802 372V586" stroke="#fff" stroke-width="5" opacity=".75"/>
             </g>
             <text x="345" y="403" fill="#74849a" font-size="11" font-family="monospace">GARAGE</text>
             <text x="621" y="403" fill="#8b7967" font-size="11" font-family="monospace">KITCHEN</text>
@@ -576,20 +618,20 @@ def _render_ecosystem(view: EcosystemView) -> None:
             <text x="716" y="264" fill="#70869a" font-size="11" font-family="monospace">CLIMATE + LIGHT</text>
             <g class="garage-closed"><rect x="352" y="430" width="205" height="140" rx="4" fill="#cbd7e5"/><path d="M352 458H557M352 486H557M352 514H557M352 542H557" stroke="#a7b7ca" stroke-width="3"/></g>
             <g class="garage-open"><rect x="352" y="430" width="205" height="140" rx="4" fill="#23344c"/><rect x="365" y="444" width="180" height="14" rx="3" fill="#8ea6c1"/></g>
-            <g transform="translate(82 491)"><path d="M12 42 Q21 15 57 13 H137 Q166 15 187 42 L202 51 V73 H0V54Z" fill="#2368e8"/><path d="M57 18H130Q150 20 164 40H40Q46 23 57 18Z" fill="#c9e4ff"/><circle cx="43" cy="72" r="17" fill="#17253b"/><circle cx="163" cy="72" r="17" fill="#17253b"/></g>
-            <g transform="translate(520 466)"><rect width="22" height="82" rx="5" fill="#fff" stroke="#7ea0ca"/><circle cx="11" cy="18" r="5" fill="#20b26b"/><path d="M11 29V54Q12 67 27 66" fill="none" stroke="#2368e8" stroke-width="4"/></g>
+            <g class="arrival-car"><g transform="translate(82 491)"><ellipse cx="102" cy="77" rx="108" ry="13" fill="#23476f" opacity=".18"/><path d="M12 42 Q21 15 57 13 H137 Q166 15 187 42 L202 51 V73 H0V54Z" fill="#2368e8"/><path d="M57 18H130Q150 20 164 40H40Q46 23 57 18Z" fill="url(#glass)"/><path d="M70 19L61 39M135 20L148 39" stroke="#fff" stroke-width="2" opacity=".65"/><circle cx="43" cy="72" r="17" fill="#17253b"/><circle cx="163" cy="72" r="17" fill="#17253b"/><circle cx="43" cy="72" r="7" fill="#60758f"/><circle cx="163" cy="72" r="7" fill="#60758f"/></g></g>
+            <g transform="translate(520 466)"><rect width="22" height="82" rx="5" fill="#fff" stroke="#7ea0ca"/><circle cx="11" cy="18" r="5" fill="#20b26b"/><path d="M11 29V54Q12 67 27 66" fill="none" stroke="#2368e8" stroke-width="4"/><path class="charger-pulse" d="M11 29V54Q12 67 27 66" fill="none" stroke="#85b6ff" stroke-width="8" stroke-linecap="round" stroke-dasharray="8 10"/></g>
             <g transform="translate(624 470)"><path d="M0 58H157V97H0Z" fill="#d9b993"/><path d="M15 58V21H83V58" fill="#f0d7b8"/><rect x="105" y="26" width="35" height="32" rx="5" fill="#263a55"/><rect x="113" y="34" width="19" height="8" rx="2" fill="#4d8fff"/><path class="coffee-steam" d="M116 20Q108 10 116 0M128 20Q120 10 128 0" fill="none" stroke="#8497ad" stroke-width="3" stroke-linecap="round"/></g>
-            <g transform="translate(740 430)"><rect width="42" height="113" rx="5" fill="#dbe7f4" stroke="#9cb2ca"/><path d="M0 50H42" stroke="#9cb2ca"/><circle cx="33" cy="61" r="3" fill="#2368e8"/></g>
+            <g transform="translate(740 430)"><rect width="42" height="113" rx="5" fill="#dbe7f4" stroke="#9cb2ca"/><path d="M0 50H42" stroke="#9cb2ca"/><circle cx="33" cy="61" r="3" fill="#2368e8"/><g class="ice-cubes" fill="#8cc8ff"><rect x="9" y="70" width="7" height="7" rx="2"/><rect x="20" y="78" width="7" height="7" rx="2"/><rect x="10" y="88" width="7" height="7" rx="2"/></g></g>
             <g transform="translate(836 442)"><rect width="115" height="70" rx="6" fill="#182942"/><rect class="tv-on" x="5" y="5" width="105" height="60" rx="4" fill="#2368e8"/><text class="tv-on" x="57" y="35" text-anchor="middle" fill="#fff" font-size="9" font-family="monospace">ORBIT SEVEN</text><path d="M57 70V82M37 82H77" stroke="#52657d" stroke-width="4"/></g>
-            <g transform="translate(885 235)"><circle r="7" fill="#52657d"/><g class="fan-blades" fill="#6f88a7"><ellipse cx="0" cy="-28" rx="8" ry="25"/><ellipse cx="28" cy="0" rx="25" ry="8"/><ellipse cx="0" cy="28" rx="8" ry="25"/><ellipse cx="-28" cy="0" rx="25" ry="8"/></g></g>
+            <g transform="translate(885 235)"><circle r="7" fill="#52657d"/><g class="fan-blades" fill="#6f88a7"><ellipse cx="0" cy="-28" rx="8" ry="25"/><ellipse cx="28" cy="0" rx="25" ry="8"/><ellipse cx="0" cy="28" rx="8" ry="25"/><ellipse cx="-28" cy="0" rx="25" ry="8"/></g><circle r="5" fill="#52657d"/></g>
             <g class="light-glow"><circle cx="760" cy="294" r="45" fill="#ffd56d" opacity=".23" filter="url(#soft)"/><circle cx="920" cy="294" r="45" fill="#ffd56d" opacity=".23" filter="url(#soft)"/></g>
-            <g fill="#ffd56d"><path d="M744 276Q760 255 776 276Q776 291 767 299H753Q744 291 744 276Z"/><path d="M904 276Q920 255 936 276Q936 291 927 299H913Q904 291 904 276Z"/></g>
+            <g class="light-fixture"><path d="M744 276Q760 255 776 276Q776 291 767 299H753Q744 291 744 276Z"/><path d="M904 276Q920 255 936 276Q936 291 927 299H913Q904 291 904 276Z"/></g>
             <g transform="translate(903 522)"><rect width="52" height="48" rx="4" fill="#d5c3b5"/><path d="M7 42Q14 22 26 40Q35 14 45 42" fill="#bac1ca"/><path d="M18 31L26 18L34 31" fill="none" stroke="#cf8614" stroke-width="3"/><rect x="17" y="8" width="18" height="12" rx="4" fill="#fff"/><path d="M22 12V9Q22 4 26 4Q30 4 30 9V12" fill="none" stroke="#76869a" stroke-width="2"/></g>
-            <g transform="translate(748 302)"><rect width="42" height="30" rx="7" fill="#fff" stroke="#7b9bc1"/><text x="21" y="20" text-anchor="middle" fill="#2368e8" font-size="10" font-family="monospace">22°</text></g>
+            <g transform="translate(769 317)"><circle class="comfort-wave" r="26" fill="none" stroke="#4d8fff" stroke-width="2"/></g><g transform="translate(748 302)"><rect width="42" height="30" rx="7" fill="#fff" stroke="#7b9bc1"/><text x="21" y="20" text-anchor="middle" fill="#2368e8" font-size="10" font-family="monospace">22°</text></g>
             <path d="M254 205V430" stroke="#8aa6c7" stroke-width="3"/><path d="M242 208H266L254 183Z" fill="#2368e8"/><circle cx="254" cy="433" r="9" fill="#20b26b"/>
           </svg>
           {_device_buttons(view)}
-          <section class="inspector" aria-live="polite"><div class="inspector-head"><h2 id="device-title">Whole-home system</h2><span class="state" id="device-state">Explore</span></div><p><span class="value" id="device-value">Select any room or device.</span><br><span id="device-detail">Every view is derived from scenario evidence and deterministic policy.</span></p></section>
+          <section class="inspector" aria-live="polite"><div class="inspector-head"><h2 id="device-title">Whole-home system</h2><span class="state" id="device-state">Explore</span></div><p><span class="value" id="device-value">Select any room or device.</span><br><span id="device-detail">Every view is derived from scenario evidence and deterministic policy.</span></p><div class="sequence" aria-label="Arrival sequence"><span style="--phase:0s">Approach</span><span style="--phase:.45s">Entry</span><span style="--phase:.9s">Comfort</span><span style="--phase:1.35s">Kitchen</span><span style="--phase:1.8s">Media</span></div></section>
           <div class="legend"><span><i class="live"></i>ready / verified</span><span><i class="stop"></i>blocked / failed</span><span><i class="guard"></i>guarded</span></div>
         </div>
       </main>
@@ -603,9 +645,16 @@ def _render_ecosystem(view: EcosystemView) -> None:
           document.getElementById('device-state').textContent=device.status;
           document.getElementById('device-value').textContent=device.value;
           document.getElementById('device-detail').textContent=device.detail;
+          document.querySelector('.inspector').className='inspector status-'+device.status;
         }}
-        document.querySelectorAll('.device').forEach(node=>node.addEventListener('click',()=>selectDevice(node.dataset.device)));
+        const timers=[];
+        function cancelSequence() {{ timers.splice(0).forEach(timer=>clearTimeout(timer)); }}
+        document.querySelectorAll('.device').forEach(node=>node.addEventListener('click',()=>{{cancelSequence();selectDevice(node.dataset.device);}}));
         selectDevice(devices.find(item=>item.status==='verified')?.id || devices[0].id);
+        const sequence=['vehicle','garage','charger','climate','lighting','fan','ice','coffee','media'];
+        if({str(view.mission_state == "succeeded").lower()} && !matchMedia('(prefers-reduced-motion: reduce)').matches) {{
+          sequence.forEach((id,index)=>timers.push(setTimeout(()=>selectDevice(id),850+index*430)));
+        }}
       </script>
     </body>
     </html>
@@ -840,11 +889,14 @@ def _render_verification(run: DemoRun) -> None:
 def _render_evidence(run: DemoRun) -> None:
     """Render the source observations and ordered evidence ledger."""
     runtime = run.assessment.runtime
-    observations = [
-        event.payload.model_dump(mode="json")
-        for event in runtime.events
-        if event.kind is EventKind.OBSERVATION_RECORDED
-    ]
+    observations: list[dict[str, object]] = []
+    for event in runtime.events:
+        if event.kind is not EventKind.OBSERVATION_RECORDED:
+            continue
+        row = event.payload.model_dump(mode="json")
+        value = row.get("value")
+        row["value"] = value if isinstance(value, str) else json.dumps(value, sort_keys=True)
+        observations.append(row)
     st.subheader("Evidence vault")
     st.caption("The ledger is append-only; the UI is a projection over its typed records.")
     st.markdown("#### Timestamped world evidence")

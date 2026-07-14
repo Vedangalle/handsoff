@@ -43,3 +43,15 @@ def test_streamlit_apptest_sessions_do_not_share_results() -> None:
     first.button[0].click().run()
     assert len(first.success) == 1
     assert len(second.success) == 0
+
+
+def test_whole_home_animation_preserves_spatial_and_safety_cues() -> None:
+    """The cinematic layer remains local, anchored, and evidence-qualified."""
+    source = APP.read_text(encoding="utf-8")
+
+    assert "transform-origin:885px 235px" not in source
+    assert "transform-box:fill-box;transform-origin:center" in source
+    assert "prefers-reduced-motion: reduce" in source
+    assert ".inspector.status-prohibited .state" in source
+    for phase in ("Approach", "Entry", "Comfort", "Kitchen", "Media"):
+        assert f">{phase}</span>" in source

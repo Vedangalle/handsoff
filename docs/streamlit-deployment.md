@@ -100,6 +100,7 @@ Deployment selects `main`, `streamlit_app.py`, and Python 3.12. Provider values 
 - All six scenarios are selectable and replayable.
 - The cutaway-home component projects device states from typed scenario and runtime evidence and has no authorization or dispatch path.
 - The nominal goal verifies eight coordinated effects across the garage, charger, climate, coffee, fan, ice, lighting, and television.
+- Verified effects are presented in an approach, entry, comfort, kitchen, and media sequence; animation never changes runtime state and honors reduced-motion preferences.
 - Green, red, and amber device signals distinguish ready or verified, blocked or failed, and prohibited states; the fireplace remains visibly `R3 locked`.
 - World state, proposal, policy reasons, approval boundary, action transitions, verification evidence, and ledger sequence are visible.
 - Deterministic and offline-memory modes run with no secrets and no network.
@@ -109,7 +110,7 @@ Deployment selects `main`, `streamlit_app.py`, and Python 3.12. Provider values 
 - Session reset is deterministic.
 - No credential or real household data appears in source, logs, screenshots, traces, or provider prompts.
 
-The automated suite exercises all six scenario selections, provider-disabled startup, Gemini fallback, fixed scope and result limits, malformed Supermemory responses, malicious memory content, deterministic reset/replay, independent session objects, visible evidence surfaces, and native Streamlit interaction through `streamlit.testing.v1.AppTest`. Live provider calls are intentionally excluded from repository validation because validation never reads real credentials.
+The automated suite exercises all six scenario selections, provider-disabled startup, Gemini fallback, fixed scope and result limits, malformed Supermemory responses, malicious memory content, deterministic reset/replay, independent session objects, visible evidence surfaces, fan-anchor and reduced-motion regression guards, and native Streamlit interaction through `streamlit.testing.v1.AppTest`. Live provider calls are intentionally excluded from repository validation because validation never reads real credentials.
 
 ## Local operation
 
