@@ -5,17 +5,47 @@
 <p align="center"><strong>A local-first, vendor-independent runtime for turning human goals into policy-checked actions and verified real-world outcomes.</strong></p>
 
 <p align="center">
-  <img alt="Project status: Milestone 4 complete" src="https://img.shields.io/badge/status-Milestone%204%20complete-1f6feb">
-  <img alt="Python 3.12" src="https://img.shields.io/badge/python-3.12-3776AB?logo=python&amp;logoColor=white">
-  <img alt="Dependencies locked with uv" src="https://img.shields.io/badge/dependencies-uv%20locked-6f42c1">
-  <img alt="Actuation: none" src="https://img.shields.io/badge/real%20actuation-none-d73a49">
-  <img alt="License pending" src="https://img.shields.io/badge/license-pending-lightgrey">
+  <a href="https://handsoff.streamlit.app"><img alt="Launch the Handsoff live demo" src="https://img.shields.io/badge/Streamlit-Live%20demo-FF4B4B?logo=streamlit&amp;logoColor=white"></a>
+  <a href="https://docs.python.org/3.12/"><img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&amp;logoColor=white"></a>
+  <a href="https://docs.astral.sh/uv/"><img alt="Reproducible dependencies locked with uv" src="https://img.shields.io/badge/uv.lock-Reproducible-DE5FE9?logo=uv&amp;logoColor=white"></a>
+  <a href="#validation"><img alt="295 tests passing" src="https://img.shields.io/badge/Tests-295%20passing-1F883D?logo=pytest&amp;logoColor=white"></a>
+  <a href="#validation"><img alt="100 percent line and branch coverage" src="https://img.shields.io/badge/Coverage-100%25-1F883D"></a>
 </p>
 
-<p align="center"><em>Internal prototype description: Physical Codex</em></p>
+<p align="center">
+  <img alt="Project status: Milestone 4 complete" src="https://img.shields.io/badge/Status-Milestone%204%20complete-1F6FEB">
+  <img alt="Simulation only; no real actuation" src="https://img.shields.io/badge/Safety-Simulation%20only-F59E0B">
+  <img alt="License decision pending" src="https://img.shields.io/badge/License-Pending-6E7781">
+</p>
+
+<p align="center">
+  <strong><a href="https://handsoff.streamlit.app">Launch Handsoff</a></strong>
+  · <a href="#90-second-judge-path">90-second judge path</a>
+  · <a href="docs/architecture.md">Architecture</a>
+  · <a href="#getting-started">Run locally</a>
+</p>
+
+<p align="center">
+  <a href="https://handsoff.streamlit.app">
+    <img alt="Handsoff interactive whole-home runtime" src="docs/assets/whole-home-staged.png" width="100%">
+  </a>
+</p>
 
 > [!IMPORTANT]
 > Handsoff has completed **Milestone 4: the hackathon application**. The repository contains the deterministic simulation core, six reference scenarios, append-only evidence, contained Gemini planning with offline fallback, bounded read-only Supermemory context, an interactive whole-home Streamlit surface, and a one-click judge comparison. This repository does not control real devices.
+
+## 90-second judge path
+
+1. Open the [live Streamlit application](https://handsoff.streamlit.app).
+2. Select **Whole-home evening arrival** and **Gemini + Supermemory context**.
+3. Click **Run judge comparison** once.
+4. Watch one goal coordinate eight bounded household effects, then inspect the comparison, policy decision, execution trace, independent verification, ledger, and memory boundary.
+
+The comparison runs two fresh and isolated traces. The deterministic reference establishes the control; the contextual trace shows exactly what Gemini and bounded Supermemory context changed. Provider failure remains visible and falls back safely. Neither provider can declare capabilities, authorize execution, alter trusted observations, or manufacture verification.
+
+| Human goal | Untrusted intelligence | Deterministic authority | Observed evidence |
+|---|---|---|---|
+| Declare the outcome and acceptance conditions | Gemini may propose; Supermemory may supply bounded context | Typed policy alone may allow or deny each capability | Fresh post-action observations determine whether the goal actually succeeded |
 
 ## The idea
 
@@ -49,6 +79,7 @@ Handsoff is not intended to replace Matter, Home Assistant, device firmware, or 
 
 ## Contents
 
+- [90-second judge path](#90-second-judge-path)
 - [The idea](#the-idea)
 - [Why this architecture exists](#why-this-architecture-exists)
 - [System model](#system-model)
@@ -160,8 +191,6 @@ The primary hackathon workflow is **Run judge comparison**. One click executes t
 The UI compares behavior-level action semantics—targets, parameters, capability dependencies, failure behavior, preconditions, and acceptance evidence—while excluding generated identifiers and timestamps. It then reports the observed relationship between trusted inputs, declared capability containment, deterministic policy, terminal state, and independent verification. Context may alter an untrusted proposal; the comparison does not grant context any authority.
 
 The complete [hackathon judge guide](docs/hackathon-judge-guide.md) includes the 90-second demonstration, architecture graphic, submission copy, screenshot set, live-provider acceptance procedure, and claims boundary.
-
-![Handsoff whole-home staged simulation](docs/assets/whole-home-staged.png)
 
 ![Handsoff credential-free judge comparison](docs/assets/judge-comparison-offline.png)
 
@@ -353,7 +382,9 @@ Run the complete CI-equivalent local gate:
 uv run --frozen --all-extras python scripts/validate.py
 ```
 
-The aggregate command stops at the first failure and executes:
+The aggregate command stops at the first failure and executes the gates below. The latest release
+gate completed with **295 tests passing**, **100% line coverage**, and **100% branch coverage**.
+These are repository validation results, not production reliability or real-device measurements.
 
 | Gate | Command | What it establishes |
 |---|---|---|
