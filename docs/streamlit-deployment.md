@@ -95,7 +95,8 @@ Milestone 4 includes:
 
 - `streamlit_app.py` as the repository entrypoint;
 - a Streamlit 1.59.2 pin in the `app` optional dependency;
-- a reviewable `requirements.txt` that installs the `app` and `planner-gemini` project extras;
+- a reviewable `requirements.txt` that installs the project extras and repeats the locked
+  Streamlit 1.59.2 and Google Gen AI 1.75.0 pins so Community Cloud cannot omit them;
 - `.streamlit/config.toml` containing non-secret visual/server configuration; and
 - tests that import and smoke-test the application with providers disabled.
 
@@ -137,5 +138,8 @@ The default offline memory lab and deterministic baseline are complete without `
 6. Add optional provider values only through Advanced settings, then follow the user-only [live-provider acceptance procedure](hackathon-judge-guide.md#live-provider-acceptance).
 7. Verify Gemini failure shows deterministic fallback and Supermemory failure shows empty-context fallback.
 8. Confirm no provider value, raw prompt, or raw response appears in UI output or logs.
+
+Gemini SDK import or client-construction failure is contained at provider bootstrap and visibly
+degrades to deterministic planning. It cannot terminate the Streamlit application.
 
 Community Cloud is a public demonstration host, not a durable system of record. Every run reconstructs an in-memory simulator and ledger; browser sessions retain only their own last typed result.

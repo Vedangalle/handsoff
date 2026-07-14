@@ -177,7 +177,10 @@ class DemoFacade:
             return fallback, None
         if not self._settings.google_api_key:
             return FallbackPlanner(_UnavailablePlanner(), fallback), None
-        transport = GoogleGenAITransport(self._settings.google_api_key)
+        try:
+            transport = GoogleGenAITransport(self._settings.google_api_key)
+        except Exception:  # noqa: BLE001 - provider bootstrap must preserve offline operation
+            return FallbackPlanner(_UnavailablePlanner(), fallback), None
         primary = GeminiPlanner(transport, model=self._settings.gemini_model)
         return FallbackPlanner(primary, fallback), transport.close
 

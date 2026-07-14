@@ -1,2 +1,5 @@
-# Streamlit Community Cloud deployment root. Versions resolve from project metadata.
+# Streamlit Community Cloud deployment root.
+# Direct pins force Cloud rebuilds to install presentation/provider extras reliably.
 .[app,planner-gemini]
+google-genai==1.75.0
+streamlit==1.59.2

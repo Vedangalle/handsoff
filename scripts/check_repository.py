@@ -163,8 +163,13 @@ def validate_deployment_files(errors: list[str]) -> None:
     """Require reviewable non-secret Streamlit Community Cloud configuration."""
     requirements = (ROOT / "requirements.txt").read_text(encoding="utf-8").splitlines()
     entries = [line.strip() for line in requirements if line.strip() and not line.startswith("#")]
-    if entries != [".[app,planner-gemini]"]:
-        errors.append("requirements.txt must install only the reviewed project extras")
+    expected_entries = [
+        ".[app,planner-gemini]",
+        "google-genai==1.75.0",
+        "streamlit==1.59.2",
+    ]
+    if entries != expected_entries:
+        errors.append("requirements.txt must install the reviewed project and Cloud pins")
     config = (ROOT / ".streamlit/config.toml").read_text(encoding="utf-8").lower()
     if any(term in config for term in ("api_key", "token", "password", "secret")):
         errors.append(".streamlit/config.toml contains a credential-like field")

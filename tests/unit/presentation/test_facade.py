@@ -190,6 +190,21 @@ def test_configured_gemini_transport_is_used_and_closed() -> None:
     transport_class.return_value.close.assert_called_once_with()
 
 
+def test_gemini_transport_bootstrap_failure_uses_deterministic_fallback() -> None:
+    """A missing or broken optional SDK cannot crash the public application."""
+    facade = DemoFacade(DemoSettings(google_api_key="value"), SCENARIOS)
+    scenario_id = facade.scenarios()[0].scenario_id
+    with patch(
+        "handsoff.presentation.facade.GoogleGenAITransport",
+        side_effect=ModuleNotFoundError("provider dependency unavailable"),
+    ):
+        run = facade.run(scenario_id, DemoMode.GEMINI)
+
+    assert run.assessment.matched
+    assert run.assessment.runtime.planner.provider == "deterministic"
+    assert run.assessment.runtime.planner.used_fallback
+
+
 def test_missing_supermemory_configuration_uses_empty_context_fallback() -> None:
     """Combined mode remains complete when both providers are disabled."""
     facade = DemoFacade(DemoSettings(), SCENARIOS)
